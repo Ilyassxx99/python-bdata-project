@@ -4,7 +4,7 @@ import os
 from stack import create_cloudformation_stack,delete_cloudformation_stack
 from keypair import create_key_pair,delete_key_pair
 
-def get_stack_network_info(stack):
+def get_stack_network_info(stack,cloudformation):
     response = cloudformation.describe_stacks(
         StackName=stack,
     )
@@ -20,7 +20,7 @@ def get_stack_network_info(stack):
     print("SecurityGroup Id is: " + str(securityGroup))
     return (securityGroup,securityGroupSsh,subnetId)
 
-def create_ec2_instance(securityGroup,securityGroupSsh,subnetId):
+def create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2):
     print("Creating EC2 instance ...")
     instance = client.run_instances(
         ImageId="ami-089d839e690b09b28",
@@ -53,7 +53,8 @@ def setup_instance(instanceIp):
     print("Installing required software ...")
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    k = paramiko.RSAKey.from_private_key_file(r"C:\Users\ifezo\.ssh\project-key.pem")
+    #r"/data/key/project-key.pem"
+    k = paramiko.RSAKey.from_private_key_file(r"/data/key/project-key.pem")
     ssh_client.connect(hostname=instanceIp, username="ubuntu", pkey=k)
 
     stdin, stdout, stderr = ssh_client.exec_command(
@@ -73,7 +74,7 @@ def setup_instance(instanceIp):
     lines = stdout.readlines()
     print(lines)
 
-def create_ami(instanceId):
+def create_ami(instanceId,ec2,client):
     print("Creating AMI ...")
     instance = ec2.Instance(instanceId)
     ami = instance.create_image(
@@ -91,7 +92,7 @@ def create_ami(instanceId):
     print("AMI created successfully ")
     return amiId
 
-def delete_ec2_instance(instanceId):
+def delete_ec2_instance(instanceId,client):
     print("Terminating the EC2 instance: "+ instanceId +" ...")
     terminate = client.terminate_instances(
         InstanceIds=[
@@ -106,7 +107,7 @@ def delete_ec2_instance(instanceId):
     )
     print(instanceId + " terminated !")
 
-def delete_ami(amiId):
+def delete_ami(amiId,client,cloudformation):
     print("Deleting ami: "+amiId+" ...")
     response = client.deregister_image(
     ImageId=amiId,

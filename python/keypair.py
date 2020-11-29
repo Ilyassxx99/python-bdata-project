@@ -7,9 +7,10 @@ def create_key_pair(client):
     keyPair = client.create_key_pair(
         KeyName='project-key'
         )
-
+#r"C:\Users\ifezo\.ssh\project-key.pem"
+#r"/data/key/project-key.pem"
     privateKey = keyPair["KeyMaterial"]
-    f = open(r"/data/key/project-key.pem", "w")
+    f = open(r"C:\Users\ifezo\.ssh\project-key.pem", "w")
     f.write(privateKey)
     f.close()
     "SSH key project-key created successfully !"

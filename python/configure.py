@@ -1,4 +1,6 @@
-def configure(ec2,autoscaling):
+import os
+
+def configure(ec2,autoscaling,ssh_client,k):
 
     workersIp = [] # List of workers Ip addresses
     controllersIp = [] # List of controllers Ip addresses
@@ -32,9 +34,7 @@ def configure(ec2,autoscaling):
                     'MaxAttempts': 123
                     }
                     )
-            ssh_client=paramiko.SSHClient() # Setup SSH client
-            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # Auto add controller to known hosts
-            k = paramiko.RSAKey.from_private_key_file(r"C:\Users\ifezo\.ssh\AWS-keypair.pem") # Set Private key
+            #r"/data/key/project-key.pem"
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Connect to controller
             print("Initiating Kubernetes cluster ...")
             # Execute command to initiate Kubernetes cluster
@@ -52,6 +52,7 @@ def configure(ec2,autoscaling):
             # Copying files from remote server
             print("Downloading config file ...")
             ftp_client=ssh_client.open_sftp() # open sftp session to controller
+            # Change config file destination
             ftp_client.get("/home/ubuntu/.kube/config",r"C:\Users\ifezo\Documents\kube-spark\clusterconfig.yaml") # Copy kubeconfig file to local directory
             ftp_client.close()
             print("Config file downloaded successfully !")
@@ -80,9 +81,6 @@ def configure(ec2,autoscaling):
                     'MaxAttempts': 123
                     }
                     )
-            ssh_client=paramiko.SSHClient() # Setup SSH session
-            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            k = paramiko.RSAKey.from_private_key_file(r"C:\Users\ifezo\.ssh\AWS-keypair.pem")
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Setup SSH connection
             stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}".format(workersCount)) # Change worker hostname
             lines = stdout.readlines()
@@ -98,8 +96,8 @@ def configure(ec2,autoscaling):
         # Loop to check for new instances
         print("Loop number: "+ str(loopCounter))
         print("-------------------------------------------")
-        print("Current controllers number: ".format(i) + str(len(controllersId)))
-        print("Current workers number: ".format(i) + str(len(workersId)))
+        print("Current controllers number: ".format(controllersCount) + str(len(controllersId)))
+        print("Current workers number: ".format(workersCount) + str(len(workersId)))
         print("-------------------------------------------")
         loopCounter = loopCounter + 1
         workersCount = 0 # Number of current workers
@@ -143,10 +141,6 @@ def configure(ec2,autoscaling):
                         'MaxAttempts': 123
                         }
                         )
-                ssh_client=paramiko.SSHClient() # Setup SSH session
-                ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                k = paramiko.RSAKey.from_private_key_file(r"C:\Users\ifezo\.ssh\AWS-keypair.pem")
-                ssh_client.connect(hostname=controllersIpNew[i], username="ubuntu", pkey=k)
                 stdin,stdout,stderr=ssh_client.exec_command("curl http://169.254.169.254/latest/meta-data/instance-id") # Execute command to create kubernetes cluster
                 lines = stdout.readlines() # read output of create cluster command
                 print("New Controller-{} id: ".format(i) + lines[0])
@@ -181,9 +175,6 @@ def configure(ec2,autoscaling):
                         'MaxAttempts': 123
                         }
                         )
-                ssh_client=paramiko.SSHClient() # Setup SSH session
-                ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                k = paramiko.RSAKey.from_private_key_file(r"C:\Users\ifezo\.ssh\AWS-keypair.pem")
                 ssh_client.connect(hostname=workersIpNew[i], username="ubuntu", pkey=k)
                 stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}-{}".format(loopCounter,i)) # Change hostname of worker node
                 lines = stdout.readlines()

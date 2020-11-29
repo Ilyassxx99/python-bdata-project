@@ -1,3 +1,4 @@
+#!/bin/bash
 tempcert=$(cat config.yaml | grep "client-certificate-data")
 tempkey=$(cat config.yaml | grep "client-key-data")
 tempca=$(cat config.yaml | grep "certificate-authority-data")

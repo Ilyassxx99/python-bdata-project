@@ -22,11 +22,11 @@ Parameters:
   KeyName:
     Type: "AWS::EC2::KeyPair::KeyName"
     Description: The EC2 Key Pair to allow SSH access to the instances
-    Default: "AWS-keypair"
+    Default: "project-key"
 
   NodeImageId:
     Type: String
-    Default: ami-010c64338fd9cb358
+    Default: myami
     Description: (Optional) Specify your own custom image ID. This value overrides any AWS Systems Manager Parameter Store value specified above.
 
 

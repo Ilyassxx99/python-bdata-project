@@ -25,12 +25,14 @@ RUN pip3.8 install paramiko
 RUN mkdir -p /scripts/k8s
 RUN mkdir -p /scripts/python
 RUN mkdir -p /data/key
-COPY create-script.sh  /scripts
-COPY delete-script.sh  /scripts
+WORKDIR /scripts
+COPY create-admin.sh  /scripts
+COPY kube.sh  /scripts
+COPY set-env.sh  /scripts
 COPY stackTemp.yaml /scripts
 COPY vpc.yaml /scripts
 COPY k8s /scripts/k8s
 COPY python /scripts/python
-RUN cd /scripts && chmod +x create-script.sh
-RUN cd /scripts && chmod +x delete-script.sh
-WORKDIR /scripts
+RUN chmod +x create-admin.sh.sh
+RUN chmod +x kube.sh
+RUN chmod +x set-env.sh
