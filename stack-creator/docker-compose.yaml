@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+#AWS CloudFormation Stack creator
+  stack:
+    image: ilyassifez/bdataproject:stacky
+    container_name: stack
+    volumes:
+      - mykubeconfig:/root/.kube
+      - myawsconfig:/root/.aws
+    network_mode: "host"
+    command: ["sh","-c","./create-script.sh"]
+    environment:
+      ACCESS_KEY: $ACCESS_KEY
+      SECRET_KEY: $SECRET_KEY
+      REGION: $REGION
+#Volumes
+volumes:
+  mykubeconfig: {}
+  myawsconfig: {}

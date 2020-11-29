@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+#AWS CloudFormation Stack creator
+  stack:
+    image: ilyassifez/bdataproject:stacky
+    container_name: stack-destructor
+    network_mode: "host"
+    command: ["sh","-c","./delete-script.sh"]
+    environment:
+      ACCESS_KEY: $ACCESS_KEY
+      SECRET_KEY: $SECRET_KEY
+      REGION: $REGION

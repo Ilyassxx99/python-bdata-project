@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kube-opex-analytics
+spec:
+  selector:
+    component: kube-opex
+  ports:
+    - name: kube-opex
+      port: 5483
+      targetPort: 5483
+      nodePort: 31082
+  type: NodePort

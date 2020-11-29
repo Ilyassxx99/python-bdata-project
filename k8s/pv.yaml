@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kube-opex-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteMany
+  storageClassName: kube-opex-storage
+  hostPath:
+    path: "/data/default/user/opex"
+  persistentVolumeReclaimPolicy: Retain

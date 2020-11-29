@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opex-analytics-volume-claim
+spec:
+  accessModes:
+  - ReadWriteMany
+  storageClassName: kube-opex-storage
+  resources:
+    requests:
+      storage: 1Gi
