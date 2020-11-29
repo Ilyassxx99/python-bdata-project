@@ -11,7 +11,6 @@ from ami import *
 
 
 if __name__ == '__main__':
-    subprocess.call("./set-env.sh", shell=True)
 
     ACCESS_KEY = os.environ['ACCESS_KEY']
     SECRET_KEY = os.environ['SECRET_KEY']
