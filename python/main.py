@@ -66,7 +66,7 @@ if __name__ == '__main__':
         delete_ec2_instance(instanceId,client)
         delete_cloudformation_stack("VPC-AMI",cloudformation)
         create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
-        configure(client,autoscaling,ssh_client,key)
+        configure(client,autoscaling,ssh_client)
         subprocess.call("./create-admin.sh", shell=True)
         subprocess.call("./kube.sh", shell=True)
     else:
