@@ -5,7 +5,7 @@ services:
     image: ilyassifez/bdataprojectpython:stacky
     container_name: stack-destructor
     network_mode: "host"
-    command: ["python3.8","main.py 1"]
+    command: ["python3.8","./python/main.py","1"]
     environment:
       ACCESS_KEY: $ACCESS_KEY
       SECRET_KEY: $SECRET_KEY

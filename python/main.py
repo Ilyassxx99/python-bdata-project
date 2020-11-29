@@ -16,8 +16,6 @@ if __name__ == '__main__':
     autoscaling  = boto3.client('autoscaling')
     ec2 = boto3.resource("ec2")
     ssh_client=paramiko.SSHClient()
-    key = paramiko.RSAKey.from_private_key_file(r"/data/key/project-key.pem") # Set Private key
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # Auto add instances to known hosts
     #r"/data/key/project-key.pem"
     #r"C:\Users\ifezo\.ssh\project-key.pem"
 

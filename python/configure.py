@@ -1,6 +1,7 @@
 import os
+import paramiko
 
-def configure(ec2,autoscaling,ssh_client,k):
+def configure(ec2,autoscaling,ssh_client):
 
     workersIp = [] # List of workers Ip addresses
     controllersIp = [] # List of controllers Ip addresses
@@ -13,6 +14,8 @@ def configure(ec2,autoscaling,ssh_client,k):
     loopCounter = 0
     joincmd = "" # Cluster join command
 
+    k = paramiko.RSAKey.from_private_key_file(r"/data/key/project-key.pem") # Set Private key
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # Auto add instances to known hosts
 
     # Get controllers and workers informations
     controllers = ec2.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Controller']},{'Name': 'instance-state-name', 'Values': ['running']}])
