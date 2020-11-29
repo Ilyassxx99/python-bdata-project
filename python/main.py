@@ -2,6 +2,8 @@ import boto3
 import paramiko
 import os
 import subprocess
+from botocore.config import Config
+from decouple import config
 from configure import *
 from stack import *
 from keypair import *
@@ -10,10 +12,34 @@ from ami import *
 
 
 if __name__ == '__main__':
+    subprocess.call("./set-env.sh", shell=True)
 
-    client = boto3.client("ec2")
-    cloudformation = boto3.client("cloudformation")
-    autoscaling  = boto3.client('autoscaling')
+    ACCESS_KEY = config('ACCESS_KEY')
+    SECRET_KEY = config('SECRET_KEY')
+    REGION = config('REGION')
+
+    my_config = Config(
+        region_name = 'eu-west-3',
+        retries = {
+            'max_attempts': 10,
+            'mode': 'standard'
+        }
+    )
+    client = boto3.client("ec2",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
+    cloudformation = boto3.client("cloudformation",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
+    autoscaling  = boto3.client('autoscaling',
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
     ec2 = boto3.resource("ec2")
     ssh_client=paramiko.SSHClient()
     #r"/data/key/project-key.pem"
@@ -21,9 +47,8 @@ if __name__ == '__main__':
 
 
     a = int(sys.argv[1])
+
     if (a == 0):
-        subprocess.call("touch /data/key/project-key.pem", shell=True)
-        subprocess.call("./set-env.sh", shell=True)
         create_cloudformation_stack("VPC-AMI","vpc.yaml",cloudformation)
         securityGroup,securityGroupSsh,subnetId = get_stack_network_info("VPC-AMI",cloudformation)
         create_key_pair(client)
@@ -36,9 +61,8 @@ if __name__ == '__main__':
         delete_cloudformation_stack("VPC-AMI",cloudformation)
         create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
         configure(client,autoscaling,ssh_client,key)
-        subprocess.call("./configure.sh", shell=True)
+        subprocess.call("./create-admin.sh", shell=True)
         subprocess.call("./kube.sh", shell=True)
     else:
-        subprocess.call("./set-env.sh")
         delete_cloudformation_stack("All-in-One",cloudformation)
         delete_key_pair(client)

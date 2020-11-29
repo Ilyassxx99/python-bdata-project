@@ -8,7 +8,7 @@ services:
       - mykubeconfig:/root/.kube
       - myawsconfig:/root/.aws
     network_mode: "host"
-    command: ["python3.8","./python/main.py","0"]
+    command: ["python3.8","main.py","0"]
     environment:
       ACCESS_KEY: $ACCESS_KEY
       SECRET_KEY: $SECRET_KEY

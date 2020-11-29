@@ -20,19 +20,17 @@ RUN chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
 # install boto3 and paramiko
 RUN pip3.8 install boto3
 RUN pip3.8 install paramiko
+RIN pip3.8 install python-decouple
 
 # add scripts and update spark default config
 RUN mkdir -p /scripts/k8s
 RUN mkdir -p /scripts/python
 RUN mkdir -p /data/key
-WORKDIR /scripts
-COPY create-admin.sh  /scripts
-COPY kube.sh  /scripts
-COPY set-env.sh  /scripts
 COPY stackTemp.yaml /scripts
 COPY vpc.yaml /scripts
 COPY k8s /scripts/k8s
 COPY python /scripts/python
+WORKDIR /scripts/python
 RUN chmod +x create-admin.sh
 RUN chmod +x kube.sh
 RUN chmod +x set-env.sh
