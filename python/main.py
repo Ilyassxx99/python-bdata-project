@@ -3,7 +3,6 @@ import paramiko
 import os
 import subprocess
 from botocore.config import Config
-from decouple import config
 from configure import *
 from stack import *
 from keypair import *
@@ -14,9 +13,9 @@ from ami import *
 if __name__ == '__main__':
     subprocess.call("./set-env.sh", shell=True)
 
-    ACCESS_KEY = config('ACCESS_KEY')
-    SECRET_KEY = config('SECRET_KEY')
-    REGION = config('REGION')
+    ACCESS_KEY = os.environ['ACCESS_KEY']
+    SECRET_KEY = os.environ['SECRET_KEY']
+    REGION = os.environ['REGION']
 
     my_config = Config(
         region_name = 'eu-west-3',
@@ -40,7 +39,11 @@ if __name__ == '__main__':
     aws_secret_access_key=SECRET_KEY,
     config=my_config
     )
-    ec2 = boto3.resource("ec2")
+    ec2 = boto3.resource("ec2",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
     ssh_client=paramiko.SSHClient()
     #r"/data/key/project-key.pem"
     #r"C:\Users\ifezo\.ssh\project-key.pem"
