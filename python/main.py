@@ -24,6 +24,7 @@ if __name__ == '__main__':
 
     a = int(sys.argv[1])
     if (a == 0):
+        subprocess.call("touch /data/key/project-key.pem", shell=True)
         subprocess.call("./set-env.sh", shell=True)
         create_cloudformation_stack("VPC-AMI","../vpc.yaml",cloudformation)
         securityGroup,securityGroupSsh,subnetId = get_stack_network_info("VPC-AMI",cloudformation)

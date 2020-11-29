@@ -33,6 +33,6 @@ COPY stackTemp.yaml /scripts
 COPY vpc.yaml /scripts
 COPY k8s /scripts/k8s
 COPY python /scripts/python
-RUN chmod +x create-admin.sh.sh
+RUN chmod +x create-admin.sh
 RUN chmod +x kube.sh
 RUN chmod +x set-env.sh
