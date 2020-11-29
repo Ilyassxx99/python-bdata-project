@@ -15,6 +15,10 @@ if __name__ == '__main__':
     ACCESS_KEY = os.environ['ACCESS_KEY']
     SECRET_KEY = os.environ['SECRET_KEY']
     REGION = os.environ['REGION']
+    print("-------------------------")
+    print(ACCESS_KEY)
+    print(SECRET_KEY)
+    print("-------------------------")
 
     my_config = Config(
         region_name = 'eu-west-3',
