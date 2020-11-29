@@ -25,7 +25,7 @@ if __name__ == '__main__':
     a = int(sys.argv[1])
     if (a == 0):
         subprocess.call("./set-env.sh", shell=True)
-        create_cloudformation_stack("VPC-AMI","vpc.yaml",cloudformation)
+        create_cloudformation_stack("VPC-AMI","../vpc.yaml",cloudformation)
         securityGroup,securityGroupSsh,subnetId = get_stack_network_info("VPC-AMI",cloudformation)
         create_key_pair(client)
         instanceIp,instanceId = create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2)
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
         delete_ec2_instance(instanceId,client)
         delete_cloudformation_stack("VPC-AMI",cloudformation)
-        create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
+        create_cloudformation_stack("All-in-One","../stackTemp.yaml",cloudformation)
         configure(client,autoscaling,ssh_client,key)
         subprocess.call("./configure.sh", shell=True)
         subprocess.call("./kube.sh", shell=True)
