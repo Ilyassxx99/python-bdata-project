@@ -12,7 +12,7 @@ aws_secret_access_key = $SECRET_KEY
 EOF
 #CloudFormation Stack creation
 echo "Executing python script ..."
-python ./python/main.py 0
+python3 ./python/main.py 0
 echo "python script executed successfully !"
 #Configure admin access to cluster
 echo "Executing the create-admin.sh script ..."
