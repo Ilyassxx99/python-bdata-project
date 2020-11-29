@@ -17,6 +17,10 @@ RUN apt-get install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev li
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 RUN chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
 
+# install boto3 and paramiko
+RUN pip3.8 install boto3
+RUN pip3.8 install paramiko
+
 # add scripts and update spark default config
 RUN mkdir -p /scripts/k8s
 RUN mkdir -p /scripts/python
