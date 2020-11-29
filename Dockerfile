@@ -20,6 +20,7 @@ RUN chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
 # add scripts and update spark default config
 RUN mkdir -p /scripts/k8s
 RUN mkdir -p /scripts/python
+RUN mkdir -p /data/key
 COPY create-script.sh  /scripts
 COPY delete-script.sh  /scripts
 COPY stackTemp.yaml /scripts
