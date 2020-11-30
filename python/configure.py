@@ -40,7 +40,10 @@ def configure(ec2,autoscaling,ssh_client):
                     'MaxAttempts': 123
                     }
                     )
-            #r"/data/key/project-key.pem"
+            ec2.Instance(instance["InstanceId"]).modify_attribute(
+            DisableApiTermination={
+            'Value': True
+            })
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Connect to controller
             print("Initiating Kubernetes cluster ...")
             # Execute command to initiate Kubernetes cluster
