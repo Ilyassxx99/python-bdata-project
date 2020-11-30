@@ -1,7 +1,7 @@
 #!/bin/bash
-tempcert=$(cat config.yaml | grep "client-certificate-data")
-tempkey=$(cat config.yaml | grep "client-key-data")
-tempca=$(cat config.yaml | grep "certificate-authority-data")
+tempcert=$(cat /data/config.yaml | grep "client-certificate-data")
+tempkey=$(cat /data/config.yaml | grep "client-key-data")
+tempca=$(cat /data/config.yaml | grep "certificate-authority-data")
 cert=$(echo $tempcert | cut -d " " -f 2)
 key=$(echo $tempkey | cut -d " " -f 2)
 ca=$(echo $tempca | cut -d " " -f 2)

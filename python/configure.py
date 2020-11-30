@@ -1,5 +1,7 @@
 import os
 import paramiko
+import time
+import subprocess
 
 def configure(ec2,autoscaling,ssh_client):
 
@@ -56,7 +58,7 @@ def configure(ec2,autoscaling,ssh_client):
             print("Downloading config file ...")
             ftp_client=ssh_client.open_sftp() # open sftp session to controller
             # Change config file destination
-            ftp_client.get("/home/ubuntu/.kube/config",r"C:\Users\ifezo\Documents\kube-spark\clusterconfig.yaml") # Copy kubeconfig file to local directory
+            ftp_client.get("/home/ubuntu/.kube/config",r"/data/config") # Copy kubeconfig file to local directory
             ftp_client.close()
             print("Config file downloaded successfully !")
             stdin,stdout,stderr=ssh_client.exec_command("sudo kubeadm token create --print-join-command") # Get token used by workers to join cluster
@@ -67,6 +69,10 @@ def configure(ec2,autoscaling,ssh_client):
             joincmd = "sudo "+ joincmd # The join command to enter in controllers to join cluster
 
     os.environ['KUBERNETES_PUBLIC_ADDRESS'] = controllersIp[0] # export Controller's ip to env variable
+    print("Exported the Kubernetes Public Address !")
+    subprocess.call('echo "---------------------------"', shell=True)
+    subprocess.call("echo $KUBERNETES_PUBLIC_ADDRESS", shell=True)
+    subprocess.call("./create-admin.sh", shell=True)
 
     for reservation in workers["Reservations"]:
         for instance in reservation["Instances"]:
@@ -94,7 +100,9 @@ def configure(ec2,autoscaling,ssh_client):
             print(stdo)
             print("-------------------------------------------")
             workersCount = workersCount + 1
-
+    print("--------------------------------")
+    print("Executing the kube.sh script !")
+    subprocess.call("./kube.sh", shell=True)
     while True:
         # Loop to check for new instances
         print("Loop number: "+ str(loopCounter))
