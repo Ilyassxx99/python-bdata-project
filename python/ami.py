@@ -109,12 +109,27 @@ def delete_ec2_instance(instanceId,client):
     print(instanceId + " terminated !")
 
 def delete_ami(amiId,amiName,client):
-    snapDescribe = client.describe_snapshots()
-    snapId = snapDescribe['Snapshots'][0]['SnapshotId']
+    ownerId = boto3.client('sts').get_caller_identity().get('Account')
     response = client.deregister_image(
-        ImageId=amiId,
+    ImageId=amiId,
     )
-    response = client.delete_snapshot(
-    SnapshotId=snapId,
+    snapIds = []
+    snapDescribe = client.describe_snapshots(
+    Filters=[
+            {
+                'Name': 'owner-id',
+                'Values': [
+                    ownerId,
+                ]
+            },
+        ],
     )
+    snaps = snapDescribe['Snapshots']
+    for snap in snaps:
+        snapIds.append(snap['SnapshotId'])
+    for snapId in snapIds:
+        print(snapId)
+        response = client.delete_snapshot(
+        SnapshotId=snapId,
+        )
     print(amiName + " deleted successfully !")

@@ -4,14 +4,9 @@ services:
   stack:
     image: ilyassifez/bdataprojectpython:stacky
     container_name: stack
-    volumes:
-      - mykubeconfig:/data/kube
     network_mode: "host"
     command: ["python3.8","main.py","0"]
     environment:
       ACCESS_KEY: $ACCESS_KEY
       SECRET_KEY: $SECRET_KEY
       REGION: $REGION
-#Volumes
-volumes:
-  mykubeconfig: {}

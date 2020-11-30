@@ -86,6 +86,7 @@ if __name__ == '__main__':
         else :
             print("Image exists, creating cluster ...")
             amiId = amis[0]["ImageId"]
+            amiName = amis[0]["Name"]
             os.environ['AMI_ID'] = amiId
             subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
             create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
@@ -96,6 +97,8 @@ if __name__ == '__main__':
         delete_cloudformation_stack("All-in-One",cloudformation)
     else:
         print("Deleting All ...")
+        amiId = amis[0]["ImageId"]
+        amiName = amis[0]["Name"]
         delete_cloudformation_stack("All-in-One",cloudformation)
         delete_key_pair(client)
         delete_ami(amiId,amiName,client)
