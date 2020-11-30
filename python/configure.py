@@ -3,7 +3,7 @@ import paramiko
 import time
 import subprocess
 
-def configure(ec2,autoscaling,ssh_client):
+def configure(client,ec2,autoscaling,ssh_client):
 
     workersIp = [] # List of workers Ip addresses
     controllersIp = [] # List of controllers Ip addresses
@@ -20,8 +20,8 @@ def configure(ec2,autoscaling,ssh_client):
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # Auto add instances to known hosts
 
     # Get controllers and workers informations
-    controllers = ec2.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Controller']},{'Name': 'instance-state-name', 'Values': ['running']}])
-    workers = ec2.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Worker']},{'Name': 'instance-state-name', 'Values': ['running']}])
+    controllers = client.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Controller']},{'Name': 'instance-state-name', 'Values': ['running']}])
+    workers = client.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Worker']},{'Name': 'instance-state-name', 'Values': ['running']}])
 
 
     for reservation in controllers["Reservations"]:
@@ -30,7 +30,7 @@ def configure(ec2,autoscaling,ssh_client):
             controllersId.append(instance["InstanceId"]) # Get controller Id
             print("Controller-{} ip: ".format(controllersCount) + instance["PublicIpAddress"])
             os.environ["CONTROLLER_IP"]=controllersIp[0]
-            waiter = ec2.get_waiter('instance_status_ok') # Wait for controller to change status ok
+            waiter = client.get_waiter('instance_status_ok') # Wait for controller to change status ok
             waiter.wait(
                 InstanceIds=[
                     controllersId[controllersCount],
@@ -77,7 +77,7 @@ def configure(ec2,autoscaling,ssh_client):
             workersIp.append(instance["PublicIpAddress"]) # Get worker Ip address
             workersId.append(instance["InstanceId"]) # Get worker Id
             print("Worker-{} ip: ".format(workersCount) + instance["PublicIpAddress"])
-            waiter = ec2.get_waiter('instance_status_ok') # Wait for worker status Ok
+            waiter = client.get_waiter('instance_status_ok') # Wait for worker status Ok
             waiter.wait(
                 InstanceIds=[
                     workersId[workersCount],
@@ -124,7 +124,7 @@ def configure(ec2,autoscaling,ssh_client):
         controllersIpTemp = [] # Temporary list of controllers Ip addresses
         workersIdTemp = [] # Temporary list of workers Ids
         controllersIdTemp = [] # Temporary list of controllers Ids
-        controllers = ec2.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Controller']},{'Name': 'instance-state-name', 'Values': ['running']}])
+        controllers = client.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Controller']},{'Name': 'instance-state-name', 'Values': ['running']}])
         for reservation in controllers["Reservations"]:
             for instance in reservation["Instances"]:
                 controllersCount = controllersCount + 1 # Get number of current controllers
@@ -143,7 +143,7 @@ def configure(ec2,autoscaling,ssh_client):
         if (newControllersCount > 0): # If there are newly launched controllers execute commands
             for i in range(0,newControllersCount):
                 print("New Controller-{} ip: ".format(i) + controllersIpNew[i])
-                waiter = ec2.get_waiter('instance_status_ok') # Wait for new controllers status Ok
+                waiter = client.get_waiter('instance_status_ok') # Wait for new controllers status Ok
                 waiter.wait(
                     InstanceIds=[
                         controllersIdNew[i],
@@ -158,7 +158,7 @@ def configure(ec2,autoscaling,ssh_client):
                 print("New Controller-{} id: ".format(i) + lines[0])
                 print("-------------------------------------------")
 
-        workers = ec2.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Worker']},{'Name': 'instance-state-name', 'Values': ['running']}])
+        workers = client.describe_instances(Filters=[{'Name': 'tag:Type', 'Values': ['Worker']},{'Name': 'instance-state-name', 'Values': ['running']}])
         for reservation in workers["Reservations"]:
             for instance in reservation["Instances"]:
                 workersCount = workersCount + 1 # Get number of current workers
@@ -177,7 +177,7 @@ def configure(ec2,autoscaling,ssh_client):
         if (newWorkersCount > 0): # If there are newly launched workers execute commands
             for i in range(0,newWorkersCount):
                 print("New Worker-{} ip: ".format(i) + workersIpNew[i])
-                waiter = ec2.get_waiter('instance_status_ok') # Wait for new workers status Ok
+                waiter = client.get_waiter('instance_status_ok') # Wait for new workers status Ok
                 waiter.wait(
                     InstanceIds=[
                         workersIdNew[i],

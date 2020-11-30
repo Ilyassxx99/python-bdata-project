@@ -93,7 +93,7 @@ if __name__ == '__main__':
             create_key_pair(client)
             subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
             create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
-            configure(client,autoscaling,ssh_client)
+            configure(client,ec2,autoscaling,ssh_client)
 
     elif (a == 1):
         print("Deleting stack only ...")
@@ -139,11 +139,12 @@ if __name__ == '__main__':
         )
         controllers = controllerReserv['Reservations'][0]['Instances']
         # Disable Api Termination for each controller
-        for controller in controllers:
-            ec2.Instance(controller["InstanceId"]).modify_attribute(
-            DisableApiTermination={
-            'Value': False
-            })
+        if (len(controllers) > 0):
+            for controller in controllers:
+                ec2.Instance(controller["InstanceId"]).modify_attribute(
+                DisableApiTermination={
+                'Value': False
+                })
         delete_cloudformation_stack("All-in-One",cloudformation)
         delete_key_pair(client)
         delete_ami(amiId,amiName,client)
