@@ -85,12 +85,17 @@ if __name__ == '__main__':
             delete_cloudformation_stack("VPC-AMI",cloudformation)
         else :
             print("Image exists, creating cluster ...")
+            amiId = amis[0]["ImageId"]
+            os.environ['AMI_ID'] = amiId
+            subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
             create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
             configure(client,autoscaling,ssh_client)
 
     elif (a == 1):
+        print("Deleting stack only ...")
         delete_cloudformation_stack("All-in-One",cloudformation)
     else:
+        print("Deleting All ...")
         delete_cloudformation_stack("All-in-One",cloudformation)
         delete_key_pair(client)
         delete_ami(amiId,amiName,client)
