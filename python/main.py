@@ -49,6 +49,8 @@ if __name__ == '__main__':
     config=my_config
     )
     ssh_client=paramiko.SSHClient()
+    amiId = ""
+    amiName = ""
     #r"/data/key/project-key.pem"
     #r"C:\Users\ifezo\.ssh\project-key.pem"
 
@@ -61,7 +63,7 @@ if __name__ == '__main__':
         create_key_pair(client)
         instanceIp,instanceId = create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2)
         setup_instance(instanceIp)
-        amiId = create_ami(instanceId,ec2,client)
+        amiId,amiName = create_ami(instanceId,ec2,client)
         os.environ['AMI_ID'] = amiId
         subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
         delete_ec2_instance(instanceId,client)
@@ -72,3 +74,4 @@ if __name__ == '__main__':
     else:
         delete_cloudformation_stack("All-in-One",cloudformation)
         delete_key_pair(client)
+        delete_ami(amiId,amiName,client)

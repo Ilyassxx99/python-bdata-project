@@ -83,14 +83,15 @@ def create_ami(instanceId,ec2,client):
         Name="kubernetes-optimizied-ami",
     )
     amiId = ami.image_id
+    amiName = ami.name
     waiter = client.get_waiter("image_available")
     waiter.wait(
         ImageIds=[
             amiId,
         ],
     )
-    print("AMI created successfully ")
-    return amiId
+    print(amiName + " created successfully ")
+    return (amiId, amiName)
 
 def delete_ec2_instance(instanceId,client):
     print("Terminating the EC2 instance: "+ instanceId +" ...")
@@ -107,11 +108,8 @@ def delete_ec2_instance(instanceId,client):
     )
     print(instanceId + " terminated !")
 
-def delete_ami(amiId,client,cloudformation):
-    print("Deleting ami: "+amiId+" ...")
+def delete_ami(amiId,amiName,client):
     response = client.deregister_image(
     ImageId=amiId,
     )
-    waiter = cloudformation.get_waiter("stack_delete_complete")
-    waiter.wait(StackName="VPC-AMI", WaiterConfig={"Delay": 10, "MaxAttempts": 300})
-    print(amiId + " deleted successfully !")
+    print(amiName + " deleted successfully !")
