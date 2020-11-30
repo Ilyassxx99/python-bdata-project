@@ -106,6 +106,12 @@ if __name__ == '__main__':
                     'Controller',
                 ]
             },
+            {
+                'Name': 'instance-state-name',
+                'Values': [
+                    'running',
+                ]
+            },
             ],
         )
         controllers = controllerReserv['Reservations'][0]['Instances']
