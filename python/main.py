@@ -53,27 +53,43 @@ if __name__ == '__main__':
     amiName = ""
     #r"/data/key/project-key.pem"
     #r"C:\Users\ifezo\.ssh\project-key.pem"
-
+    response = client.describe_images(
+        Filters=[
+            {
+                'Name': 'name',
+                'Values': [
+                    'kubernetes-optimizied-ami',
+                ]
+            },
+            ]
+    )
+    amis = response["Images"]
 
     a = int(sys.argv[1])
 
     if (a == 0):
-        create_cloudformation_stack("VPC-AMI","vpc.yaml",cloudformation)
-        securityGroup,securityGroupSsh,subnetId = get_stack_network_info("VPC-AMI",cloudformation)
-        create_key_pair(client)
-        instanceIp,instanceId = create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2)
-        setup_instance(instanceIp)
-        amiId,amiName = create_ami(instanceId,ec2,client)
-        print("-----------AMI-----------")
-        print(amiId)
-        print("-------------------------")
-        os.environ['AMI_ID'] = amiId
-        subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
-        delete_ec2_instance(instanceId,client)
-        delete_cloudformation_stack("VPC-AMI",cloudformation)
-        create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
-        configure(client,autoscaling,ssh_client)
+        if (len(amis) == 0):
+            print("Image doesn't exist, creating image ...")
+            create_cloudformation_stack("VPC-AMI","vpc.yaml",cloudformation)
+            securityGroup,securityGroupSsh,subnetId = get_stack_network_info("VPC-AMI",cloudformation)
+            create_key_pair(client)
+            instanceIp,instanceId = create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2)
+            setup_instance(instanceIp)
+            amiId,amiName = create_ami(instanceId,ec2,client)
+            print("-----------AMI-----------")
+            print(amiId)
+            print("-------------------------")
+            os.environ['AMI_ID'] = amiId
+            subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
+            delete_ec2_instance(instanceId,client)
+            delete_cloudformation_stack("VPC-AMI",cloudformation)
+        else :
+            print("Image exists, creating cluster ...")
+            create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
+            configure(client,autoscaling,ssh_client)
 
+    elif (a == 1):
+        delete_cloudformation_stack("All-in-One",cloudformation)
     else:
         delete_cloudformation_stack("All-in-One",cloudformation)
         delete_key_pair(client)

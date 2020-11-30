@@ -57,11 +57,11 @@ def configure(ec2,autoscaling,ssh_client):
             print("Kubernetes cluster initiated successfully !")
             print("-------------------------------------------")
             # Copying files to remote controller
-            stdin,stdout,stderr=ssh_client.exec_command("sudo kubeadm token create --print-join-command") # Get token used by workers to join cluster
-            lines = stdout.readlines()
-            print(lines)
             stdin,stdout,stderr=ssh_client.exec_command("cd /home/ubuntu && \
             git clone https://github.com/Ilyassxx99/bdata-kube.git")
+            lines = stdout.readlines()
+            print(lines)
+            stdin,stdout,stderr=ssh_client.exec_command("sudo kubeadm token create --print-join-command") # Get token used by workers to join cluster
             lines = stdout.readlines()
             print(lines)
             controllersCount = controllersCount + 1

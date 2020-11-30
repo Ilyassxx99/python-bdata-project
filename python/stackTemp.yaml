@@ -134,6 +134,23 @@ Resources:
         ToPort: 31082
         CidrIp: 0.0.0.0/0
 
+  ApiSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow kube-api-server traffic to spark app
+      VpcId:
+         Ref: VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 6443
+        ToPort: 6443
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 6443
+        ToPort: 6443
+        CidrIp: 0.0.0.0/0
+
   SshSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -162,6 +179,7 @@ Resources:
       SecurityGroups:
       - !Ref SshSecurityGroup
       - !Ref OpexSecurityGroup
+      - !Ref ApiSecurityGroup
       - !GetAtt VPC.DefaultSecurityGroup
       InstanceType: t3.micro
 
