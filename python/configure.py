@@ -49,30 +49,23 @@ def configure(ec2,autoscaling,ssh_client):
              mkdir -p $HOME/.kube && \
              sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && \
              sudo chown $(id -u):$(id -g) $HOME/.kube/config && \
+             sudo mkdir /data/ && \
              sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml")
             lines = stdout.readlines() # read output of command
             print("Controller-{} id: ".format(controllersCount) + lines[0])
             print("Kubernetes cluster initiated successfully !")
             print("-------------------------------------------")
-            # Copying files from remote server
-            print("Downloading config file ...")
-            ftp_client=ssh_client.open_sftp() # open sftp session to controller
-            # Change config file destination
-            ftp_client.get("/home/ubuntu/.kube/config",r"/data/config") # Copy kubeconfig file to local directory
-            ftp_client.close()
-            print("Config file downloaded successfully !")
+            # Copying files to remote controller
             stdin,stdout,stderr=ssh_client.exec_command("sudo kubeadm token create --print-join-command") # Get token used by workers to join cluster
+            lines = stdout.readlines()
+            print(lines)
+            stdin,stdout,stderr=ssh_client.exec_command("cd /home/ubuntu && \
+            git clone https://github.com/Ilyassxx99/bdata-kube.git")
             lines = stdout.readlines()
             print(lines)
             controllersCount = controllersCount + 1
             joincmd = lines[0][:-2]
             joincmd = "sudo "+ joincmd # The join command to enter in controllers to join cluster
-
-    os.environ['KUBERNETES_PUBLIC_ADDRESS'] = controllersIp[0] # export Controller's ip to env variable
-    print("Exported the Kubernetes Public Address !")
-    subprocess.call('echo "---------------------------"', shell=True)
-    subprocess.call("echo $KUBERNETES_PUBLIC_ADDRESS", shell=True)
-    subprocess.call("./create-admin.sh", shell=True)
 
     for reservation in workers["Reservations"]:
         for instance in reservation["Instances"]:
@@ -101,8 +94,12 @@ def configure(ec2,autoscaling,ssh_client):
             print("-------------------------------------------")
             workersCount = workersCount + 1
     print("--------------------------------")
-    print("Executing the kube.sh script !")
-    subprocess.call("./kube.sh", shell=True)
+    print("Deploying the kubernetes objects ...")
+    ssh_client.connect(hostname=controllersIp[0], username="ubuntu", pkey=k) # Connect to controller
+    stdin,stdout,stderr=ssh_client.exec_command("kubectl apply -f bdata-kube")
+    lines = stdout.readlines()
+    print(lines)
+
     while True:
         # Loop to check for new instances
         print("Loop number: "+ str(loopCounter))

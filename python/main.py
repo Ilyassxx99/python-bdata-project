@@ -64,6 +64,9 @@ if __name__ == '__main__':
         instanceIp,instanceId = create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2)
         setup_instance(instanceIp)
         amiId,amiName = create_ami(instanceId,ec2,client)
+        print("-----------AMI-----------")
+        print(amiId)
+        print("-------------------------")
         os.environ['AMI_ID'] = amiId
         subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
         delete_ec2_instance(instanceId,client)

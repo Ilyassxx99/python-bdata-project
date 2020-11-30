@@ -110,6 +110,6 @@ def delete_ec2_instance(instanceId,client):
 
 def delete_ami(amiId,amiName,client):
     response = client.deregister_image(
-    ImageId=amiId,
+        ImageId=amiId,
     )
     print(amiName + " deleted successfully !")
