@@ -6,7 +6,6 @@ services:
     container_name: stack
     volumes:
       - mykubeconfig:/root/.kube
-      - myawsconfig:/root/.aws
     network_mode: "host"
     command: ["python3.8","main.py","0"]
     environment:
@@ -16,4 +15,3 @@ services:
 #Volumes
 volumes:
   mykubeconfig: {}
-  myawsconfig: {}

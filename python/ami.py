@@ -109,7 +109,12 @@ def delete_ec2_instance(instanceId,client):
     print(instanceId + " terminated !")
 
 def delete_ami(amiId,amiName,client):
+    snapDescribe = client.describe_snapshots()
+    snapId = snapDescribe['Snapshots'][0]['SnapshotId']
     response = client.deregister_image(
         ImageId=amiId,
+    )
+    response = client.delete_snapshot(
+    SnapshotId=snapId,
     )
     print(amiName + " deleted successfully !")
