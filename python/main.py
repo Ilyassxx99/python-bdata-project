@@ -2,7 +2,6 @@ import boto3
 import paramiko
 import os
 import subprocess
-import thread
 import time
 from botocore.config import Config
 from configure import *
@@ -69,7 +68,7 @@ if __name__ == '__main__':
         delete_cloudformation_stack("VPC-AMI",cloudformation)
         create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
         configure(client,autoscaling,ssh_client)
-        
+
     else:
         delete_cloudformation_stack("All-in-One",cloudformation)
         delete_key_pair(client)
