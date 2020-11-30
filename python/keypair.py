@@ -5,6 +5,7 @@ def create_key_pair(client):
     keypair = client.describe_key_pairs(
                 KeyNames=[
                 'project-key',
+                ]
                 )
     if (len(keypair["KeyPairs"]>0):
         delete_key_pair(client)
