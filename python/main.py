@@ -114,14 +114,15 @@ if __name__ == '__main__':
             },
             ],
         )
-        controllers = controllerReserv['Reservations'][0]['Instances']
-        # Disable Api Termination for each controller
-        if (len(controllers) > 0):
-            for controller in controllers:
-                ec2.Instance(controller["InstanceId"]).modify_attribute(
-                DisableApiTermination={
-                'Value': False
-                })
+        if (len(controllerReserv['Reservations'] > 0)):
+            controllers = controllerReserv['Reservations'][0]['Instances']
+            # Disable Api Termination for each controller
+            if (len(controllers) > 0):
+                for controller in controllers:
+                    ec2.Instance(controller["InstanceId"]).modify_attribute(
+                    DisableApiTermination={
+                    'Value': False
+                    })
         delete_cloudformation_stack("All-in-One",cloudformation)
     else:
         print("Deleting All ...")
@@ -143,14 +144,15 @@ if __name__ == '__main__':
             },
             ],
         )
-        controllers = controllerReserv['Reservations'][0]['Instances']
-        # Disable Api Termination for each controller
-        if (len(controllers) > 0):
-            for controller in controllers:
-                ec2.Instance(controller["InstanceId"]).modify_attribute(
-                DisableApiTermination={
-                'Value': False
-                })
+        if (len(controllerReserv['Reservations'] > 0)):
+            controllers = controllerReserv['Reservations'][0]['Instances']
+            # Disable Api Termination for each controller
+            if (len(controllers) > 0):
+                for controller in controllers:
+                    ec2.Instance(controller["InstanceId"]).modify_attribute(
+                    DisableApiTermination={
+                    'Value': False
+                    })
         delete_cloudformation_stack("All-in-One",cloudformation)
         delete_key_pair(client)
         delete_ami(amiId,amiName,client)
