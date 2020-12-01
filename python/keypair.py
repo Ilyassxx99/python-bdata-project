@@ -18,10 +18,10 @@ def create_key_pair(client):
     f = open(r"/root/.kube/project-key.pem", "w")
     f.write(privateKey)
     f.close()
-    "SSH key project-key created successfully !"
+    print("SSH key project-key created successfully !")
 
 def delete_key_pair(client):
-    "Deleting SSH key project-key ..."
+    print("Deleting SSH key project-key ...")
     keyPair = client.delete_key_pair(
         KeyName='project-key'
         )

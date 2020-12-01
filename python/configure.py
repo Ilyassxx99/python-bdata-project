@@ -31,6 +31,7 @@ def configure(client,ec2,autoscaling,ssh_client):
             print("Controller-{} ip: ".format(controllersCount) + instance["PublicIpAddress"])
             os.environ["CONTROLLER_IP"]=controllersIp[0]
             subprocess.call('echo "--------------------------------" && echo "Controller IP: $CONTROLLER_IP" && echo "--------------------------------"', shell = True)
+            subprocess.call('echo "--------------------------------" && cat /root/.kube/project-key.pem " && echo "--------------------------------"', shell = True)
 
             #subprocess.call("echo $CONTROLLER_IP > /root/.kube/MasterIp", shell=True)
             waiter = client.get_waiter('instance_status_ok') # Wait for controller to change status ok
