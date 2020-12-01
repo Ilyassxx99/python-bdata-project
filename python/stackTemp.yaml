@@ -181,7 +181,7 @@ Resources:
       - !Ref OpexSecurityGroup
       - !Ref ApiSecurityGroup
       - !GetAtt VPC.DefaultSecurityGroup
-      InstanceType: t3.micro
+      InstanceType: t3.small
 
   WorkersASG:
     DependsOn: mySimpleConfig

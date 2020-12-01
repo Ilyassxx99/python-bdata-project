@@ -163,7 +163,7 @@ Resources:
       - !Ref SshSecurityGroup
       - !Ref OpexSecurityGroup
       - !GetAtt VPC.DefaultSecurityGroup
-      InstanceType: t3.micro
+      InstanceType: t3.small
 
   WorkersASG:
     DependsOn: mySimpleConfig

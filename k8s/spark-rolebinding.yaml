@@ -4,9 +4,9 @@ kind: RoleBinding
 metadata:
   name: spark-role-binding
 subjects:
-- kind: User
-  name: system:anonymous # Name is case sensitive
-  apiGroup: rbac.authorization.k8s.io
+- kind: ServiceAccount
+  name: spark # Name is case sensitive
+  namespace: default
 roleRef:
   kind: Role
   name: spark-role
