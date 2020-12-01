@@ -31,8 +31,6 @@ def configure(client,ec2,autoscaling,ssh_client):
             print("Controller-{} ip: ".format(controllersCount) + instance["PublicIpAddress"])
             os.environ["CONTROLLER_IP"]=controllersIp[0]
             subprocess.call('echo "--------------------------------" && echo "Controller IP: $CONTROLLER_IP" && echo "--------------------------------"', shell = True)
-            subprocess.call('echo "--------------------------------" && cat /root/.kube/project-key.pem && echo "--------------------------------"', shell = True)
-
             #subprocess.call("echo $CONTROLLER_IP > /root/.kube/MasterIp", shell=True)
             waiter = client.get_waiter('instance_status_ok') # Wait for controller to change status ok
             waiter.wait(
@@ -52,6 +50,7 @@ def configure(client,ec2,autoscaling,ssh_client):
             print("Initiating Kubernetes cluster ...")
             # Execute command to initiate Kubernetes cluster
             cmd = 'sudo hostnamectl set-hostname master-node && \
+             sudo service docker start && \
              sudo kubeadm init --control-plane-endpoint "'+instance["PublicIpAddress"]+':6443" --pod-network-cidr=10.244.0.0/16 && \
              mkdir -p /home/ubuntu/.kube && \
              sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config && \
@@ -94,6 +93,8 @@ def configure(client,ec2,autoscaling,ssh_client):
                     )
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Setup SSH connection
             stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}".format(workersCount)) # Change worker hostname
+            lines = stdout.readlines()
+            stdin,stdout,stderr=ssh_client.exec_command("sudo service docker start")
             lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command(joincmd) # Command to join cluster
             lines = stderr.readlines()
@@ -193,6 +194,8 @@ def configure(client,ec2,autoscaling,ssh_client):
                 stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}-{}".format(loopCounter,i)) # Change hostname of worker node
                 lines = stdout.readlines()
                 print(lines)
+                stdin,stdout,stderr=ssh_client.exec_command("sudo service docker start")
+                lines = stdout.readlines()
                 stdin,stdout,stderr=ssh_client.exec_command(joincmd) # Execute command to join cluster
                 lines = stdout.readlines()
                 for line in lines:
