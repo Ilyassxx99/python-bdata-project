@@ -61,7 +61,8 @@ def configure(client,ec2,autoscaling,ssh_client):
             print("-------------------------------------------")
             # Copying files to remote controller
             sftp = ssh_client.open_sftp()
-            sftp.get(r"$HOME/.kube/config",r"/root/.kube/config")
+            sftp.get("/home/ubuntu/.kube/config","/root/.kube/config")
+            sftp.close()
             stdin,stdout,stderr=ssh_client.exec_command("sudo kubeadm token create --print-join-command") # Get token used by workers to join cluster
             lines = stdout.readlines()
             print(lines)
