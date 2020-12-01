@@ -16,7 +16,7 @@ def configure(client,ec2,autoscaling,ssh_client):
     loopCounter = 0
     joincmd = "" # Cluster join command
 
-    k = paramiko.RSAKey.from_private_key_file(r"/data/key/project-key.pem") # Set Private key
+    k = paramiko.RSAKey.from_private_key_file(r"/root/.kube/project-key.pem") # Set Private key
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # Auto add instances to known hosts
 
     # Get controllers and workers informations
@@ -52,9 +52,9 @@ def configure(client,ec2,autoscaling,ssh_client):
             # Execute command to initiate Kubernetes cluster
             cmd = 'sudo hostnamectl set-hostname master-node && \
              sudo kubeadm init --control-plane-endpoint "'+instance["PublicIpAddress"]+':6443" --pod-network-cidr=10.244.0.0/16 && \
-             mkdir -p $HOME/.kube && \
-             sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && \
-             sudo chown $(id -u):$(id -g) $HOME/.kube/config && \
+             mkdir -p /home/ubuntu/.kube && \
+             sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config && \
+             sudo chown $(id -u):$(id -g) /home/ubuntu/.kube/config && \
              sudo mkdir /data/ && \
              sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
             stdin,stdout,stderr=ssh_client.exec_command(cmd)
