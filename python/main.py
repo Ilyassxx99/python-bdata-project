@@ -114,7 +114,7 @@ if __name__ == '__main__':
             },
             ],
         )
-        if (len(controllerReserv['Reservations'] > 0)):
+        if (len(controllerReserv['Reservations']) > 0):
             controllers = controllerReserv['Reservations'][0]['Instances']
             # Disable Api Termination for each controller
             if (len(controllers) > 0):
@@ -144,7 +144,7 @@ if __name__ == '__main__':
             },
             ],
         )
-        if (len(controllerReserv['Reservations'] > 0)):
+        if (len(controllerReserv['Reservations']) > 0):
             controllers = controllerReserv['Reservations'][0]['Instances']
             # Disable Api Termination for each controller
             if (len(controllers) > 0):
