@@ -23,7 +23,9 @@ RUN pip3.8 install paramiko
 
 # add scripts and update spark default config
 RUN mkdir -p /scripts/python
+RUN mkdir -p /scripts/k8s
 RUN mkdir -p /data/key
+COPY k8s /scripts/k8s
 COPY stackTemp.yaml /scripts
 COPY vpc.yaml /scripts
 COPY python /scripts/python

@@ -47,23 +47,21 @@ def configure(client,ec2,autoscaling,ssh_client):
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Connect to controller
             print("Initiating Kubernetes cluster ...")
             # Execute command to initiate Kubernetes cluster
-            stdin,stdout,stderr=ssh_client.exec_command(
-            "sudo hostnamectl set-hostname master-node && \
-             sudo kubeadm init --pod-network-cidr=10.244.0.0/16 && \
+            cmd = 'sudo hostnamectl set-hostname master-node && \
+             sudo kubeadm init --control-plane-endpoint "'+instance["PublicIpAddress"]+':6443" --pod-network-cidr=10.244.0.0/16 && \
              mkdir -p $HOME/.kube && \
              sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && \
              sudo chown $(id -u):$(id -g) $HOME/.kube/config && \
              sudo mkdir /data/ && \
-             sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml")
+             sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
+            stdin,stdout,stderr=ssh_client.exec_command(cmd)
             lines = stdout.readlines() # read output of command
             print("Controller-{} id: ".format(controllersCount) + lines[0])
             print("Kubernetes cluster initiated successfully !")
             print("-------------------------------------------")
             # Copying files to remote controller
-            stdin,stdout,stderr=ssh_client.exec_command("cd /home/ubuntu && \
-            git clone https://github.com/Ilyassxx99/bdata-kube.git")
-            lines = stdout.readlines()
-            print(lines)
+            sftp = ssh_client.open_sftp()
+            sftp.get(r"$HOME/.kube/config",r"/root/.kube/config")
             stdin,stdout,stderr=ssh_client.exec_command("sudo kubeadm token create --print-join-command") # Get token used by workers to join cluster
             lines = stdout.readlines()
             print(lines)
@@ -99,10 +97,7 @@ def configure(client,ec2,autoscaling,ssh_client):
             workersCount = workersCount + 1
     print("--------------------------------")
     print("Deploying the kubernetes objects ...")
-    ssh_client.connect(hostname=controllersIp[0], username="ubuntu", pkey=k) # Connect to controller
-    stdin,stdout,stderr=ssh_client.exec_command("kubectl apply -f bdata-kube")
-    lines = stdout.readlines()
-    print(lines)
+    subprocess.call("kubectl apply -f /scripts/k8s",shell=True)
 
     while True:
         # Loop to check for new instances
