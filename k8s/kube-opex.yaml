@@ -25,7 +25,7 @@ spec:
           - name: KOA_DB_LOCATION
             value: /data/db
           - name: KOA_K8S_API_ENDPOINT
-            value: http://kubernetes.default.svc:6443
+            value: https://kubernetes.default.svc:6443
       volumes:
       - name: opex-analytics-volume
         persistentVolumeClaim:
