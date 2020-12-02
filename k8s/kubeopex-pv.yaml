@@ -9,5 +9,5 @@ spec:
   - ReadWriteOnce
   storageClassName: kube-opex-storage
   hostPath:
-    path: "/data/default/user/opex"
+    path: "/data/db"
   persistentVolumeReclaimPolicy: Retain
