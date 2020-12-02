@@ -3,16 +3,6 @@ import paramiko
 import time
 import signal
 import subprocess
-from stack import *
-
-class GracefulKiller:
-  kill_now = False
-  def __init__(self):
-    signal.signal(signal.SIGINT, self.exit_gracefully)
-    signal.signal(signal.SIGTERM, self.exit_gracefully)
-
-  def exit_gracefully(self,signum, frame):
-    self.kill_now = True
 
 def configure(client,ec2,autoscaling,ssh_client,cloudformation):
 
@@ -129,14 +119,8 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
                     /scripts/helm/kube-opex-analytics/', shell=True)
     print("--------------------------------")
     subprocess.call('echo "-----------------------------------------------------------" && echo "Access Kube-Opex-Analytics on: $WORKER_IP:31082" && echo "-----------------------------------------------------------"', shell = True)
-    killer = GracefulKiller()
 
-    def graceful_killer():
-        killer.kill_now = True
-        delete_cloudformation_stack(ec2,client,"All-in-One",cloudformation)
-    killer.exit_gracefully = graceful_killer()
-
-    while not killer.kill_now:
+    while True:
         # Loop to check for new instances
         print("Loop number: "+ str(loopCounter))
         print("-------------------------------------------")
