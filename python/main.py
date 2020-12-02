@@ -97,11 +97,11 @@ if __name__ == '__main__':
 
     elif (a == 1):
         # Get controllers Ids
-        delete_cloudformation_stack(client,"All-in-One",cloudformation)
+        delete_cloudformation_stack(ec2,client,"All-in-One",cloudformation)
     else:
         print("Deleting All ...")
         amiId = amis[0]["ImageId"]
         amiName = amis[0]["Name"]
-        delete_cloudformation_stack(client,"All-in-One",cloudformation)
+        delete_cloudformation_stack(ec2,client,"All-in-One",cloudformation)
         delete_key_pair(client)
         delete_ami(amiId,amiName,client)

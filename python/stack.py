@@ -16,7 +16,7 @@ def create_cloudformation_stack(stack,file,cloudformation):
     waiter.wait(StackName=stack, WaiterConfig={"Delay": 15, "MaxAttempts": 300})
     print(stack+" created successfully !")
 
-def delete_cloudformation_stack(client,stack,cloudformation):
+def delete_cloudformation_stack(ec2,client,stack,cloudformation):
     print("Deleting stack only (AMI and corresponding snapshot must be deleted manually !) ...")
     controllerReserv = client.describe_instances(
         Filters=[

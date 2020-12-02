@@ -3,6 +3,7 @@ import paramiko
 import time
 import signal
 import subprocess
+from stack import *
 
 class GracefulKiller:
   kill_now = False
@@ -113,6 +114,9 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             print(stdo)
             print("-------------------------------------------")
             workersCount = workersCount + 1
+    os.environ['SPARK_NODE'] = workersIp[workersCount]
+    subprocess.call("echo $SPARK_NODE > /root/.kube/sparkNodeIp",shell=True)
+    subprocess.call('echo "-----------------Spark Node IP: $SPARK_NODE---------------" ',shell=True)
     print("--------------------------------")
     print("Deploying the kubernetes objects ...")
     subprocess.call("kubectl apply -f /scripts/k8s",shell=True)
@@ -129,7 +133,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
 
     def graceful_killer():
         killer.kill_now = True
-        delete_cloudformation_stack(client,"All-in-One",cloudformation)
+        delete_cloudformation_stack(ec2,client,"All-in-One",cloudformation)
     killer.exit_gracefully = graceful_killer()
 
     while not killer.kill_now:
