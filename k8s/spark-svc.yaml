@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-ui-svc
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+    - port: 4040
+      targetPort: 4040
+      nodePort: 31080
+      protocol: TCP
+      name: http
+  selector:
+    spark-role: driver

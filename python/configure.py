@@ -96,6 +96,12 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Setup SSH connection
             stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}".format(workersCount)) # Change worker hostname
             lines = stdout.readlines()
+            stdin,stdout,stderr=ssh_client.exec_command('cat <<EOF >/home/ubuntu/result.sh \
+            #!/bin/bash \
+            cd /data/default/user/spark/result')
+            lines = stdout.readlines()
+            stdin,stdout,stderr=ssh_client.exec_command('chmod +x result.sh')
+            lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command("sudo service docker start")
             lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command(joincmd) # Command to join cluster
