@@ -114,7 +114,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             print(stdo)
             print("-------------------------------------------")
             workersCount = workersCount + 1
-    os.environ['SPARK_NODE'] = workersIp[workersCount]
+    os.environ['SPARK_NODE'] = workersIp[-1]
     subprocess.call("echo $SPARK_NODE > /root/.kube/sparkNodeIp",shell=True)
     subprocess.call('echo "-----------------Spark Node IP: $SPARK_NODE---------------" ',shell=True)
     print("--------------------------------")
