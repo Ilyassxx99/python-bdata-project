@@ -2,7 +2,7 @@ FROM python:slim-buster
 
 RUN python --version
 
-RUN apt-get install curl
+RUN apt-get update && apt-get install curl
 
 # download and install Kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
