@@ -126,6 +126,12 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
     print("--------------------------------")
     subprocess.call('echo "-----------------------------------------------------------" && echo "Access Kube-Opex-Analytics on: $WORKER_IP:31082" && echo "-----------------------------------------------------------"', shell = True)
     killer = GracefulKiller()
+
+    def graceful_killer():
+        killer.kill_now = True
+        delete_cloudformation_stack(client,"All-in-One",cloudformation)
+    killer.exit_gracefully = graceful_killer()
+
     while not killer.kill_now:
         # Loop to check for new instances
         print("Loop number: "+ str(loopCounter))
@@ -229,32 +235,4 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             print("No worker has been added")
 
         time.sleep(60)
-
-    print("Deleting stack only (AMI and corresponding snapshot must be deleted manually !) ...")
     # Get controllers Ids
-    controllerReserv = response = client.describe_instances(
-        Filters=[
-        {
-            'Name': 'tag:Type',
-            'Values': [
-                'Controller',
-            ]
-        },
-        {
-            'Name': 'instance-state-name',
-            'Values': [
-                'running',
-            ]
-        },
-        ],
-    )
-    if (len(controllerReserv['Reservations']) > 0):
-        controllers = controllerReserv['Reservations'][0]['Instances']
-        # Disable Api Termination for each controller
-        if (len(controllers) > 0):
-            for controller in controllers:
-                ec2.Instance(controller["InstanceId"]).modify_attribute(
-                DisableApiTermination={
-                'Value': False
-                })
-    delete_cloudformation_stack("All-in-One",cloudformation)

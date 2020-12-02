@@ -96,63 +96,12 @@ if __name__ == '__main__':
             configure(client,ec2,autoscaling,ssh_client,cloudformation)
 
     elif (a == 1):
-        print("Deleting stack only ...")
         # Get controllers Ids
-        controllerReserv = response = client.describe_instances(
-            Filters=[
-            {
-                'Name': 'tag:Type',
-                'Values': [
-                    'Controller',
-                ]
-            },
-            {
-                'Name': 'instance-state-name',
-                'Values': [
-                    'running',
-                ]
-            },
-            ],
-        )
-        if (len(controllerReserv['Reservations']) > 0):
-            controllers = controllerReserv['Reservations'][0]['Instances']
-            # Disable Api Termination for each controller
-            if (len(controllers) > 0):
-                for controller in controllers:
-                    ec2.Instance(controller["InstanceId"]).modify_attribute(
-                    DisableApiTermination={
-                    'Value': False
-                    })
-        delete_cloudformation_stack("All-in-One",cloudformation)
+        delete_cloudformation_stack(client,"All-in-One",cloudformation)
     else:
         print("Deleting All ...")
         amiId = amis[0]["ImageId"]
         amiName = amis[0]["Name"]
-        controllerReserv = response = client.describe_instances(
-            Filters=[
-            {
-                'Name': 'tag:Type',
-                'Values': [
-                    'Controller',
-                ]
-            },
-            {
-                'Name': 'instance-state-name',
-                'Values': [
-                    'running',
-                ]
-            },
-            ],
-        )
-        if (len(controllerReserv['Reservations']) > 0):
-            controllers = controllerReserv['Reservations'][0]['Instances']
-            # Disable Api Termination for each controller
-            if (len(controllers) > 0):
-                for controller in controllers:
-                    ec2.Instance(controller["InstanceId"]).modify_attribute(
-                    DisableApiTermination={
-                    'Value': False
-                    })
-        delete_cloudformation_stack("All-in-One",cloudformation)
+        delete_cloudformation_stack(client,"All-in-One",cloudformation)
         delete_key_pair(client)
         delete_ami(amiId,amiName,client)
