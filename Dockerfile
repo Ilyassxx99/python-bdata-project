@@ -22,11 +22,11 @@ RUN pip3.8 install boto3
 RUN pip3.8 install paramiko
 
 # Download and install Helm
-RUN curl https://baltocdn.com/helm/signing.asc | sudo apt-key add - && \
-    sudo apt-get install apt-transport-https --yes && \
-    echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list && \
-    sudo apt-get update && \
-    sudo apt-get install helm
+RUN curl https://baltocdn.com/helm/signing.asc | apt-key add - && \
+    apt-get install apt-transport-https --yes && \
+    echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list && \
+    apt-get update && \
+    apt-get install helm
 
 # add scripts and update spark default config
 RUN mkdir -p /scripts/python
