@@ -60,6 +60,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
              sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
             stdin,stdout,stderr=ssh_client.exec_command(cmd)
             lines = stdout.readlines() # read output of command
+            subprocess.call("./create-admin.sh",shell=True)
             print("Controller-{} id: ".format(controllersCount) + lines[0])
             print("Kubernetes cluster initiated successfully !")
             print("-------------------------------------------")
