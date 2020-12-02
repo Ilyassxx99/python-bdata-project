@@ -108,10 +108,10 @@ def configure(client,ec2,autoscaling,ssh_client):
     subprocess.call("kubectl apply -f /scripts/k8s",shell=True)
     print("--------------------------------")
     print("Deploying the kube-opex-analytics ...")
-    subprocess.call('helm template \
-                    kube-opex-analytics \
+    subprocess.call('helm upgrade \
                     --namespace default \
-                    /scripts/helm/kube-opex-analytics/ | kubectl apply -f -', shell=True)
+                    --install kube-opex-analytics \
+                    /scripts/helm/kube-opex-analytics/', shell=True)
 
     while True:
         # Loop to check for new instances

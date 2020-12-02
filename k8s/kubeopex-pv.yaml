@@ -6,7 +6,7 @@ spec:
   capacity:
     storage: 1Gi
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   storageClassName: kube-opex-storage
   hostPath:
     path: "/data/default/user/opex"
