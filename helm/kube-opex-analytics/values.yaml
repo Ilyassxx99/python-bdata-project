@@ -20,9 +20,9 @@ prometheusOperator:
   labels:
 
 securityContext:
-  enabled: true
-  uid: 4583
-  gid: 4583
+  enabled: false
+#  uid: 4583
+#  gid: 4583
 
 replicaCount: 1
 

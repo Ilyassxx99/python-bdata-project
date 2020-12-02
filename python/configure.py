@@ -3,7 +3,16 @@ import paramiko
 import time
 import subprocess
 
-def configure(client,ec2,autoscaling,ssh_client):
+class GracefulKiller:
+  kill_now = False
+  def __init__(self):
+    signal.signal(signal.SIGINT, self.exit_gracefully)
+    signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+  def exit_gracefully(self,signum, frame):
+    self.kill_now = True
+
+def configure(client,ec2,autoscaling,ssh_client,cloudformation):
 
     workersIp = [] # List of workers Ip addresses
     controllersIp = [] # List of controllers Ip addresses
@@ -106,14 +115,17 @@ def configure(client,ec2,autoscaling,ssh_client):
     print("--------------------------------")
     print("Deploying the kubernetes objects ...")
     subprocess.call("kubectl apply -f /scripts/k8s",shell=True)
+    subprocess.call("kubectl label nodes worker-node-0 spark=yes",shell=True)
     print("--------------------------------")
     print("Deploying the kube-opex-analytics ...")
     subprocess.call('helm upgrade \
                     --namespace default \
                     --install kube-opex-analytics \
                     /scripts/helm/kube-opex-analytics/', shell=True)
-
-    while True:
+    print("--------------------------------")
+    subprocess.call('echo "--------------------------------" && echo "Kube-Opex-Analytics on: $WORKER_IP:31082" && echo "--------------------------------"', shell = True)
+    killer = GracefulKiller()
+    while not killer.kill_now:
         # Loop to check for new instances
         print("Loop number: "+ str(loopCounter))
         print("-------------------------------------------")
@@ -216,6 +228,32 @@ def configure(client,ec2,autoscaling,ssh_client):
             print("No worker has been added")
 
         time.sleep(60)
-    # http://169.254.169.254/latest/meta-data/instance-id
-    # https://bdata-project-keys.s3.eu-west-3.amazonaws.com/AWS-keypair.pem
-    # kubeadm reset -f
+
+    print("Deleting stack only (AMI and corresponding snapshot must be deleted manually !) ...")
+    # Get controllers Ids
+    controllerReserv = response = client.describe_instances(
+        Filters=[
+        {
+            'Name': 'tag:Type',
+            'Values': [
+                'Controller',
+            ]
+        },
+        {
+            'Name': 'instance-state-name',
+            'Values': [
+                'running',
+            ]
+        },
+        ],
+    )
+    if (len(controllerReserv['Reservations']) > 0):
+        controllers = controllerReserv['Reservations'][0]['Instances']
+        # Disable Api Termination for each controller
+        if (len(controllers) > 0):
+            for controller in controllers:
+                ec2.Instance(controller["InstanceId"]).modify_attribute(
+                DisableApiTermination={
+                'Value': False
+                })
+    delete_cloudformation_stack("All-in-One",cloudformation)

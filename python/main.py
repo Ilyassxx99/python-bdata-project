@@ -93,7 +93,7 @@ if __name__ == '__main__':
             create_key_pair(client)
             subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
             create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
-            configure(client,ec2,autoscaling,ssh_client)
+            configure(client,ec2,autoscaling,ssh_client,cloudformation)
 
     elif (a == 1):
         print("Deleting stack only ...")
