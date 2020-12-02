@@ -1,6 +1,7 @@
 import os
 import paramiko
 import time
+import signal
 import subprocess
 
 class GracefulKiller:
@@ -123,7 +124,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
                     --install kube-opex-analytics \
                     /scripts/helm/kube-opex-analytics/', shell=True)
     print("--------------------------------")
-    subprocess.call('echo "--------------------------------" && echo "Kube-Opex-Analytics on: $WORKER_IP:31082" && echo "--------------------------------"', shell = True)
+    subprocess.call('echo "-----------------------------------------------------------" && echo "Access Kube-Opex-Analytics on: $WORKER_IP:31082" && echo "-----------------------------------------------------------"', shell = True)
     killer = GracefulKiller()
     while not killer.kill_now:
         # Loop to check for new instances
