@@ -9,5 +9,5 @@ spec:
   - ReadWriteMany
   storageClassName: spark-storage
   hostPath:
-    path: "/data/default/user/spark"
+    path: "/home/ubuntu/data/spark"
   persistentVolumeReclaimPolicy: Retain

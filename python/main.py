@@ -84,7 +84,7 @@ if __name__ == '__main__':
             delete_ec2_instance(instanceId,client)
             delete_cloudformation_stack("VPC-AMI",cloudformation)
             create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
-            configure(client,autoscaling,ssh_client)
+            configure(client,ec2,autoscaling,ssh_client,cloudformation)
         else :
             print("Image exists, creating cluster ...")
             amiId = amis[0]["ImageId"]
