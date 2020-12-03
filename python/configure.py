@@ -152,7 +152,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
                     }
                     )
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Setup SSH connection
-            hdfs_config(ssh_client,controllersPrivateIp)
+            hdfs_config(ssh_client,controllersPrivateIp[0])
             stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}".format(workersCount)) # Change worker hostname
             lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command('sudo mkdir -p /home/ubuntu/data/spark')
