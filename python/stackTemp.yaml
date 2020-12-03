@@ -130,7 +130,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
       - IpProtocol: tcp
-        FromPort: 31082
+        FromPort: 31080
         ToPort: 31082
         CidrIp: 0.0.0.0/0
 

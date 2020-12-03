@@ -24,8 +24,6 @@ RUN mkdir -p /scripts/helm
 RUN mkdir -p /data/key
 RUN mkdir -p /data/pki
 COPY k8s /scripts/k8s
-COPY stackTemp.yaml /scripts
-COPY vpc.yaml /scripts
 COPY python /scripts/python
 RUN chmod +x /scripts/python/create-admin.sh
 COPY helm /scripts/helm

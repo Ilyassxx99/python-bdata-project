@@ -98,7 +98,8 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command('cat <<EOF >/home/ubuntu/result.sh \
             #!/bin/bash \
-            cd /data/default/user/spark/result')
+            cd /data/default/user/spark/result \
+            EOF')
             lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command('chmod +x result.sh')
             lines = stdout.readlines()

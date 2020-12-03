@@ -6,7 +6,7 @@ envs:
   KOA_DB_LOCATION: /data/db
   KOA_K8S_API_ENDPOINT: https://kubernetes.default
   KOA_K8S_API_VERIFY_SSL: false
-  KOA_K8S_CACERT: /data/pki/ca.pem
+  #KOA_K8S_CACERT: /data/pki/ca.pem
   #KOA_K8S_AUTH_CLIENT_CERT: /data/pki/admin.pem
   #KOA_K8S_AUTH_CLIENT_CERT_KEY: /data/pki/admin-key.pem
   KOA_COST_MODEL: CUMULATIVE_RATIO
@@ -23,9 +23,9 @@ prometheusOperator:
   labels:
 
 securityContext:
-  enabled: false
-#  uid: 4583
-#  gid: 4583
+  enabled: true
+  uid: 4583
+  gid: 4583
 
 replicaCount: 1
 
