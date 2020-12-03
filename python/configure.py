@@ -8,6 +8,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
 
     workersIp = [] # List of workers Ip addresses
     controllersIp = [] # List of controllers Ip addresses
+    controllersPrivateIp = []
     workersId = [] # List of workers Ids
     controllersId = [] # List of controller Ids
     controllersCount = 0 # Number of running controllers
@@ -28,6 +29,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
     for reservation in controllers["Reservations"]:
         for instance in reservation["Instances"]:
             controllersIp.append(instance["PublicIpAddress"]) # Get controller Ip address
+            controllersPrivateIp.append(instance["PrivateIpAddress"])
             controllersId.append(instance["InstanceId"]) # Get controller Id
             print("Controller-{} ip: ".format(controllersCount) + instance["PublicIpAddress"])
             os.environ["CONTROLLER_IP"]=controllersIp[0]
@@ -60,6 +62,12 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
              sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
             stdin,stdout,stderr=ssh_client.exec_command(cmd)
             lines = stdout.readlines() # read output of command
+            stdin,stdout,stderr=ssh_client.exec_command('sudo apt install nfs-kernel-server && \
+            sudo mkdir -p /data/default/user/spark && sudo chown nobody:nogroup && \
+            echo "/data/default/user/spark    192.168.0.0/16(rw,sync,no_subtree_check)" >> /etc/exports && \
+            sudo systemctl restart nfs-kernel-server && \
+            sudo ufw allow from 192.168.0.0/16 to any port nfs')
+            lines = stdout.readlines()
             subprocess.call("./create-admin.sh",shell=True)
             print("Controller-{} id: ".format(controllersCount) + lines[0])
             print("Kubernetes cluster initiated successfully !")
@@ -102,6 +110,11 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             EOF')
             lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command('chmod +x result.sh')
+            lines = stdout.readlines()
+            cmd = 'sudo apt install nfs-common && \
+            sudo mkdir -p /data/default/user/spark && \
+            sudo mount'+controllersPrivateIp[0]+':/data/default/user/spark /data/default/user/spark'
+            stdin,stdout,stderr=ssh_client.exec_command(cmd)
             lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command("sudo service docker start")
             lines = stdout.readlines()
