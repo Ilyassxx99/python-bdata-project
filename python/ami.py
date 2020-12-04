@@ -73,39 +73,45 @@ def setup_instance(instanceIp):
     )
     lines = stdout.readlines()
     print(lines)
-    stdin, stdout, stderr = ssh_client.exec_command(
-        'sudo apt install openjdk-8-jdk -y && \
-         echo "export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")" >> .bashrc'
-    )
+    # stdin, stdout, stderr = ssh_client.exec_command(
+    #     'sudo apt install openjdk-8-jdk -y && \
+    #      echo "export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")" >> .bashrc'
+    # )
+    # lines = stdout.readlines()
+    # print(lines)
+    # stdin, stdout, stderr = ssh_client.exec_command(
+    #     'sudo apt install openssh-server openssh-client -y && \
+    #      ssh-keygen -t rsa -P "" -f ~/.ssh/id_rsa && \
+    #      cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
+    #      chmod 0600 ~/.ssh/authorized_keys'
+    # )
+    # lines = stdout.readlines()
+    # print(lines)
+    # stdin, stdout, stderr = ssh_client.exec_command(
+    #     'wget https://downloads.apache.org/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz && \
+    #     sleep 5 && \
+    #     tar -xzf hadoop-3.2.1.tar.gz && \
+    #     HADOOP_HOME=/home/ubuntu/hadoop-3.2.1 && \
+    #     echo "export HADOOP_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc')
+    # lines = stdout.readlines()
+    # print(lines)
+    # stdin, stdout, stderr = ssh_client.exec_command(
+    #     'echo "export HADOOP_INSTALL=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
+    #     echo "export HADOOP_MAPRED_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
+    #     echo "export HADOOP_COMMON_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
+    #     echo "export HADOOP_HDFS_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
+    #     echo "export YARN_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
+    #     echo "export HADOOP_COMMON_LIB_NATIVE_DIR=/home/ubuntu/hadoop-3.2.1/lib/native" >> .bashrc && \
+    #     echo "export PATH=$PATH:/home/ubuntu/hadoop-3.2.1/sbin:/home/ubuntu/hadoop-3.2.1/bin:$JAVA_HOME/bin" >> .bashrc && \
+    #     source ~/.bashrc')
+    # lines = stdout.readlines()
+    # print(lines)
+    stdin,stdout,stderr=ssh_client.exec_command('sudo apt install -y nfs-kernel-server && \
+    sudo apt install -y nfs-common && \
+    mkdir -p /home/ubuntu/data/spark && \
+    sudo chown ubuntu:ubuntu /home/ubuntu/data/spark && \
+    sudo chown ubuntu:ubuntu /etc/exports')
     lines = stdout.readlines()
-    print(lines)
-    stdin, stdout, stderr = ssh_client.exec_command(
-        'sudo apt install openssh-server openssh-client -y && \
-         ssh-keygen -t rsa -P "" -f ~/.ssh/id_rsa && \
-         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
-         chmod 0600 ~/.ssh/authorized_keys'
-    )
-    lines = stdout.readlines()
-    print(lines)
-    stdin, stdout, stderr = ssh_client.exec_command(
-        'wget https://downloads.apache.org/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz && \
-        sleep 5 && \
-        tar -xzf hadoop-3.2.1.tar.gz && \
-        HADOOP_HOME=/home/ubuntu/hadoop-3.2.1 && \
-        echo "export HADOOP_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc')
-    lines = stdout.readlines()
-    print(lines)
-    stdin, stdout, stderr = ssh_client.exec_command(
-        'echo "export HADOOP_INSTALL=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
-        echo "export HADOOP_MAPRED_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
-        echo "export HADOOP_COMMON_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
-        echo "export HADOOP_HDFS_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
-        echo "export YARN_HOME=/home/ubuntu/hadoop-3.2.1" >> .bashrc && \
-        echo "export HADOOP_COMMON_LIB_NATIVE_DIR=/home/ubuntu/hadoop-3.2.1/lib/native" >> .bashrc && \
-        echo "export PATH=$PATH:/home/ubuntu/hadoop-3.2.1/sbin:/home/ubuntu/hadoop-3.2.1/bin:$JAVA_HOME/bin" >> .bashrc && \
-        source ~/.bashrc')
-    lines = stdout.readlines()
-    print(lines)
     ssh_client.close()
 def create_ami(instanceId,ec2,client):
     print("Creating AMI ...")
@@ -173,12 +179,11 @@ if __name__ == '__main__':
     autoscaling  = boto3.client('autoscaling')
     ec2 = boto3.resource("ec2")
     print("Image doesn't exist, creating image ...")
-    instanceId="i-0257cb66959e41aee"
-    #create_cloudformation_stack("VPC-AMI","vpc.yaml",cloudformation)
-    #securityGroup,securityGroupSsh,subnetId = get_stack_network_info("VPC-AMI",cloudformation)
-    #instanceIp,instanceId = create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2)
-    #setup_instance(instanceIp)
-    amiId,amiName = create_ami(instanceId,ec2,client)
-    print("-----------AMI-----------")
-    print(amiId)
-    print("-------------------------")
+    create_cloudformation_stack("VPC-AMI","vpc.yaml",cloudformation)
+    securityGroup,securityGroupSsh,subnetId = get_stack_network_info("VPC-AMI",cloudformation)
+    instanceIp,instanceId = create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2)
+    setup_instance(instanceIp)
+    # amiId,amiName = create_ami(instanceId,ec2,client)
+    # print("-----------AMI-----------")
+    # print(amiId)
+    # print("-------------------------")

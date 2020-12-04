@@ -100,7 +100,10 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Connect to controller
             print("Configuring Hadoop cluster on Master ...")
             hdfs_config(ssh_client,controllersPrivateIp[0])
-            stdin,stdout,stderr=ssh_client.exec_command("hdfs namenode -format && ./start-dfs.sh") # Get token used by workers to join cluster
+            stdin,stdout,stderr=ssh_client.exec_command(
+            'sudo systemctl start nfs-kernel-server && \
+            sudo ufw allow from 192.168.0.0/16 to any port nfs && \
+            echo "/home/ubuntu/data/spark    192.168.0.0/16(rw,sync,no_subtree_check,no_root_squash)" >> /etc/exports')
             lines = stdout.readlines()
             print("Initiating Kubernetes cluster ...")
             # Execute command to initiate Kubernetes cluster
@@ -110,16 +113,9 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
              mkdir -p /home/ubuntu/.kube && \
              sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config && \
              sudo chown $(id -u):$(id -g) /home/ubuntu/.kube/config && \
-             mkdir -p /home/ubuntu/data/spark && \
              sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
             stdin,stdout,stderr=ssh_client.exec_command(cmd)
             lines = stdout.readlines() # read output of command
-            #stdin,stdout,stderr=ssh_client.exec_command('sudo apt install nfs-kernel-server && \
-            #sudo mkdir -p /data/default/user/spark && sudo chown nobody:nogroup && \
-            #echo "/data/default/user/spark    192.168.0.0/16(rw,sync,no_subtree_check)" >> /etc/exports && \
-            #sudo systemctl restart nfs-kernel-server && \
-            #sudo ufw allow from 192.168.0.0/16 to any port nfs')
-            #lines = stdout.readlines()
             subprocess.call("./create-admin.sh",shell=True)
             print("Controller-{} id: ".format(controllersCount) + lines[0])
             print("Kubernetes cluster initiated successfully !")
@@ -159,10 +155,9 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             hdfs_config(ssh_client,controllersPrivateIp[0])
             stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}".format(workersCount)) # Change worker hostname
             lines = stdout.readlines()
-            stdin,stdout,stderr=ssh_client.exec_command('mkdir -p /home/ubuntu/data/spark')
-            lines = stdout.readlines()
-            #stdin,stdout,stderr=ssh_client.exec_command(cmd)
-            #lines = stdout.readlines()
+            nfs_cmd = 'sudo mount'+controllersPrivateIp[0]+':/home/ubuntu/data/spark /home/ubuntu/data/spark'
+            stdin,stdout,stderr=ssh_client.exec_command(nfs_cmd) # Command to join cluster
+            lines = stderr.readlines()
             stdin,stdout,stderr=ssh_client.exec_command("sudo service docker start")
             lines = stdout.readlines()
             stdin,stdout,stderr=ssh_client.exec_command(joincmd) # Command to join cluster
@@ -173,20 +168,20 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             print(stdo)
             print("-------------------------------------------")
             workersCount = workersCount + 1
-    ssh_client.connect(hostname=controllersIp[0], username="ubuntu", pkey=k) # Connect to controller
-    for workerPIp in workersPrivateIp:
-        os.environ['WORKER_NODE'] = workerPIp
-        subprocess.call('echo "-----------------Worker Private IP @: $WORKER_NODE---------------" ',shell=True)
-        cmd = 'echo "'+workerPIp+'" >> $HADOOP_HOME/etc/hadoop/workers'
-        stdin,stdout,stderr=ssh_client.exec_command(cmd)
-        lines = stdout.readlines()
-    stdin,stdout,stderr=ssh_client.exec_command("hdfs namenode -format")
-    lines = stdout.readlines()
-    stdin,stdout,stderr=ssh_client.exec_command("cd /home/ubuntu/hadoop-3.2.1/sbin && ./start-dfs.sh")
-    lines = stdout.readlines()
-    print("--------------------------------")
-    print("HDFS cluster is ready !")
-    ssh_client.close()
+    # ssh_client.connect(hostname=controllersIp[0], username="ubuntu", pkey=k) # Connect to controller
+    # for workerPIp in workersPrivateIp:
+    #     os.environ['WORKER_NODE'] = workerPIp
+    #     subprocess.call('echo "-----------------Worker Private IP @: $WORKER_NODE---------------" ',shell=True)
+    #     cmd = 'echo "'+workerPIp+'" >> $HADOOP_HOME/etc/hadoop/workers'
+    #     stdin,stdout,stderr=ssh_client.exec_command(cmd)
+    #     lines = stdout.readlines()
+    # stdin,stdout,stderr=ssh_client.exec_command("hdfs namenode -format")
+    # lines = stdout.readlines()
+    # stdin,stdout,stderr=ssh_client.exec_command("cd /home/ubuntu/hadoop-3.2.1/sbin && ./start-dfs.sh")
+    # lines = stdout.readlines()
+    # print("--------------------------------")
+    # print("HDFS cluster is ready !")
+    # ssh_client.close()
     os.environ['SPARK_NODE'] = workersIp[-1]
     subprocess.call("echo $SPARK_NODE > /root/.kube/sparkNodeIp",shell=True)
     subprocess.call('echo "-----------------Spark Node IP: $SPARK_NODE---------------" ',shell=True)

@@ -24,8 +24,8 @@ prometheusOperator:
 
 securityContext:
   enabled: true
-  uid: 4583
-  gid: 4583
+  uid: 1000
+  gid: 1000
 
 replicaCount: 1
 
