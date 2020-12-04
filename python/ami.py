@@ -106,10 +106,6 @@ def setup_instance(instanceIp):
         source ~/.bashrc')
     lines = stdout.readlines()
     print(lines)
-    stdin, stdout, stderr = ssh_client.exec_command(
-        'echo "export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh')
-    lines = stdout.readlines()
-    print(lines)
     ssh_client.close()
 def create_ami(instanceId,ec2,client):
     print("Creating AMI ...")

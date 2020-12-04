@@ -46,6 +46,10 @@ def hdfs_config(ssh_client,controllersPrivateIp):
     file.write(mapred_site)
     file.flush()
     ftp.close()
+    stdin, stdout, stderr = ssh_client.exec_command(
+        'echo "export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh')
+    lines = stdout.readlines()
+    print(lines)
 
 def configure(client,ec2,autoscaling,ssh_client,cloudformation):
 
@@ -106,7 +110,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
              mkdir -p /home/ubuntu/.kube && \
              sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config && \
              sudo chown $(id -u):$(id -g) /home/ubuntu/.kube/config && \
-             sudo mkdir -p /home/ubuntu/data/spark && \
+             mkdir -p /home/ubuntu/data/spark && \
              sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
             stdin,stdout,stderr=ssh_client.exec_command(cmd)
             lines = stdout.readlines() # read output of command
@@ -155,7 +159,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             hdfs_config(ssh_client,controllersPrivateIp[0])
             stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}".format(workersCount)) # Change worker hostname
             lines = stdout.readlines()
-            stdin,stdout,stderr=ssh_client.exec_command('sudo mkdir -p /home/ubuntu/data/spark')
+            stdin,stdout,stderr=ssh_client.exec_command('mkdir -p /home/ubuntu/data/spark')
             lines = stdout.readlines()
             #stdin,stdout,stderr=ssh_client.exec_command(cmd)
             #lines = stdout.readlines()
@@ -171,6 +175,8 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             workersCount = workersCount + 1
     ssh_client.connect(hostname=controllersIp[0], username="ubuntu", pkey=k) # Connect to controller
     for workerPIp in workersPrivateIp:
+        os.environ['WORKER_NODE'] = workerPIp
+        subprocess.call('echo "-----------------Worker Private IP @: $WORKER_NODE---------------" ',shell=True)
         cmd = 'echo "'+workerPIp+'" >> $HADOOP_HOME/etc/hadoop/workers'
         stdin,stdout,stderr=ssh_client.exec_command(cmd)
         lines = stdout.readlines()
