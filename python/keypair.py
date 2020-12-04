@@ -13,6 +13,7 @@ def create_key_pair(client):
             ],
     )
     if (len(keypair["KeyPairs"])>0):
+        print("Deleting previous key pair ...")
         delete_key_pair(client)
     keyPair = client.create_key_pair(
         KeyName='project-key'

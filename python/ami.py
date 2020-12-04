@@ -28,7 +28,7 @@ def create_ec2_instance(securityGroup,securityGroupSsh,subnetId,client,ec2):
         MaxCount=1,
         SubnetId=subnetId,
         InstanceType="t2.micro",
-        KeyName="AWS-keypair",
+        KeyName="project-key",
         SecurityGroupIds=[
             securityGroup,
             securityGroupSsh,
