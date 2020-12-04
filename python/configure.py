@@ -103,7 +103,8 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             stdin,stdout,stderr=ssh_client.exec_command(
             'sudo systemctl start nfs-kernel-server && \
             sudo ufw allow from 192.168.0.0/16 to any port nfs && \
-            echo "/home/ubuntu/data/spark    192.168.0.0/16(rw,sync,no_subtree_check,no_root_squash)" >> /etc/exports')
+            echo "/home/ubuntu/data/spark    192.168.0.0/16(rw,sync,no_subtree_check,no_root_squash)" >> /etc/exports && \
+            sudo systemctl restart nfs-kernel-server')
             lines = stdout.readlines()
             print("Initiating Kubernetes cluster ...")
             # Execute command to initiate Kubernetes cluster
@@ -155,7 +156,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             #hdfs_config(ssh_client,controllersPrivateIp[0])
             stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}".format(workersCount)) # Change worker hostname
             lines = stdout.readlines()
-            nfs_cmd = 'sudo mount'+controllersPrivateIp[0]+':/home/ubuntu/data/spark /home/ubuntu/data/spark'
+            nfs_cmd = 'sudo mount '+controllersPrivateIp[0]+':/home/ubuntu/data/spark /home/ubuntu/data/spark'
             stdin,stdout,stderr=ssh_client.exec_command(nfs_cmd) # Command to join cluster
             lines = stderr.readlines()
             stdin,stdout,stderr=ssh_client.exec_command("sudo service docker start")
