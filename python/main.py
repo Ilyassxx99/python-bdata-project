@@ -82,7 +82,7 @@ if __name__ == '__main__':
             os.environ['AMI_ID'] = amiId
             subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
             delete_ec2_instance(instanceId,client)
-            delete_cloudformation_stack("VPC-AMI",cloudformation)
+            delete_cloudformation_stack(ec2,client,"VPC-AMI",cloudformation)
             create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
             configure(client,ec2,autoscaling,ssh_client,cloudformation)
         else :
