@@ -54,7 +54,7 @@ def setup_instance(instanceIp):
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #r"/data/key/project-key.pem"
-    k = paramiko.RSAKey.from_private_key_file(r"C:\Users\ifezo\.ssh\AWS-keypair.pem")
+    k = paramiko.RSAKey.from_private_key_file(r"/data/key/project-key.pem")
     ssh_client.connect(hostname=instanceIp, username="ubuntu", pkey=k)
 
     stdin, stdout, stderr = ssh_client.exec_command(
