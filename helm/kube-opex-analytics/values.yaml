@@ -4,7 +4,7 @@
 
 envs:
   KOA_DB_LOCATION: /home/ubuntu/data/db
-  KOA_K8S_API_ENDPOINT: https://kubernetes.default.svc
+  KOA_K8S_API_ENDPOINT: https://kubernetes.default:6443
   KOA_K8S_API_VERIFY_SSL: false
   # KOA_K8S_CACERT: /data/pki/ca.pem
   # KOA_K8S_AUTH_CLIENT_CERT: /data/pki/admin.pem
