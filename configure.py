@@ -4,48 +4,48 @@ import time
 import signal
 import subprocess
 
-def hdfs_config(ssh_client,controllersPrivateIp):
-    ftp = ssh_client.open_sftp()
-    core_site = '<configuration> \n\
-    <property> \n\
-      <name>hadoop.tmp.dir</name> \n\
-      <value>/data/default/user/spark</value> \n\
-    </property> \n\
-    <property> \n\
-      <name>fs.default.name</name> \n\
-      <value>hdfs://'+controllersPrivateIp[0]+':9000</value> \n\
-    </property> \n\
-    </configuration>'
-    file=ftp.file('$HADOOP_HOME/etc/hadoop/core-site.xml', "w", -1)
-    file.write(core_site)
-    file.flush()
-    hdfs_site = '<configuration> \n\
-    <property> \n\
-      <name>dfs.data.dir</name> \n\
-      <value>/data/default/user/spark/namenode</value> \n\
-    </property> \n\
-    <property> \n\
-      <name>dfs.data.dir</name> \n\
-      <value>/data/default/user/spark/datanode</value> \n\
-    </property> \n\
-    <property> \n\
-      <name>dfs.replication</name> \n\
-      <value>1</value> \n\
-    </property> \n\
-    </configuration>'
-    file=ftp.file('$HADOOP_HOME/etc/hadoop/hdfs-site.xml', "w", -1)
-    file.write(hdfs_site)
-    file.flush()
-    mapred_site = '<configuration> \n\
-    <property> \n\
-      <name>mapreduce.framework.name</name> \n\
-      <value>yarn</value> \n\
-    </property> \n\
-    </configuration>'
-    file=ftp.file('$HADOOP_HOME/etc/hadoop/mapred-site.xml', "w", -1)
-    file.write(mapred_site)
-    file.flush()
-    ftp.close()
+# def hdfs_config(ssh_client,controllersPrivateIp):
+#     ftp = ssh_client.open_sftp()
+#     core_site = '<configuration> \n\
+#     <property> \n\
+#       <name>hadoop.tmp.dir</name> \n\
+#       <value>/data/default/user/spark</value> \n\
+#     </property> \n\
+#     <property> \n\
+#       <name>fs.default.name</name> \n\
+#       <value>hdfs://'+controllersPrivateIp[0]+':9000</value> \n\
+#     </property> \n\
+#     </configuration>'
+#     file=ftp.file('$HADOOP_HOME/etc/hadoop/core-site.xml', "w", -1)
+#     file.write(core_site)
+#     file.flush()
+#     hdfs_site = '<configuration> \n\
+#     <property> \n\
+#       <name>dfs.data.dir</name> \n\
+#       <value>/data/default/user/spark/namenode</value> \n\
+#     </property> \n\
+#     <property> \n\
+#       <name>dfs.data.dir</name> \n\
+#       <value>/data/default/user/spark/datanode</value> \n\
+#     </property> \n\
+#     <property> \n\
+#       <name>dfs.replication</name> \n\
+#       <value>1</value> \n\
+#     </property> \n\
+#     </configuration>'
+#     file=ftp.file('$HADOOP_HOME/etc/hadoop/hdfs-site.xml', "w", -1)
+#     file.write(hdfs_site)
+#     file.flush()
+#     mapred_site = '<configuration> \n\
+#     <property> \n\
+#       <name>mapreduce.framework.name</name> \n\
+#       <value>yarn</value> \n\
+#     </property> \n\
+#     </configuration>'
+#     file=ftp.file('$HADOOP_HOME/etc/hadoop/mapred-site.xml', "w", -1)
+#     file.write(mapred_site)
+#     file.flush()
+#     ftp.close()
 
 def configure(client,ec2,autoscaling,ssh_client,cloudformation):
 
