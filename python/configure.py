@@ -108,7 +108,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             lines = stdout.readlines()
             print("Initiating Kubernetes cluster ...")
             # Execute command to initiate Kubernetes cluster
-            cmd = 'sudo hostnamectl set-hostname master-node && \
+            cmd = 'sudo hostnamectl set-hostname master && \
              sudo service docker start && \
              sudo kubeadm init --control-plane-endpoint "'+instance["PublicIpAddress"]+':6443" --pod-network-cidr=10.244.0.0/16 && \
              mkdir -p /home/ubuntu/.kube && \
@@ -154,7 +154,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
                     )
             ssh_client.connect(hostname=instance["PublicIpAddress"], username="ubuntu", pkey=k) # Setup SSH connection
             #hdfs_config(ssh_client,controllersPrivateIp[0])
-            stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-node-{}".format(workersCount)) # Change worker hostname
+            stdin,stdout,stderr=ssh_client.exec_command("sudo hostnamectl set-hostname worker-{}".format(instance["InstanceId"])) # Change worker hostname
             lines = stdout.readlines()
             nfs_cmd = 'sudo mount '+controllersPrivateIp[0]+':/home/ubuntu/data/spark /home/ubuntu/data/spark'
             stdin,stdout,stderr=ssh_client.exec_command(nfs_cmd) # Command to join cluster
