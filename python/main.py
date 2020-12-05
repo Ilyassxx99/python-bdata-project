@@ -8,6 +8,7 @@ from configure import *
 from stack import *
 from keypair import *
 from ami import *
+from monitoring import *
 
 
 
@@ -33,6 +34,11 @@ if __name__ == '__main__':
     aws_secret_access_key=SECRET_KEY,
     config=my_config
     )
+    s3 = boto3.client("s3",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
     cloudformation = boto3.client("cloudformation",
     aws_access_key_id=ACCESS_KEY,
     aws_secret_access_key=SECRET_KEY,
@@ -43,11 +49,35 @@ if __name__ == '__main__':
     aws_secret_access_key=SECRET_KEY,
     config=my_config
     )
+    lamda = boto3.client("lambda",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
+    sns = boto3.client("sns",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
+    iam = boto3.client("iam",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
+    logs = boto3.client("logs",
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config
+    )
     ec2 = boto3.resource("ec2",
     aws_access_key_id=ACCESS_KEY,
     aws_secret_access_key=SECRET_KEY,
     config=my_config
     )
+    s3Res = boto3.resource('s3',
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config)
     ssh_client=paramiko.SSHClient()
     amiId = ""
     amiName = ""
@@ -85,6 +115,7 @@ if __name__ == '__main__':
             delete_cloudformation_stack(ec2,client,"VPC-AMI",cloudformation)
             create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
             configure(client,ec2,autoscaling,ssh_client,cloudformation)
+            monitoringCreate(s3,s3Res,lamda,cloudformation,autoscaling)
         else :
             print("Image exists, creating cluster ...")
             amiId = amis[0]["ImageId"]
@@ -94,10 +125,12 @@ if __name__ == '__main__':
             subprocess.call("sed -i 's/myami/'$AMI_ID'/' stackTemp.yaml", shell=True)
             create_cloudformation_stack("All-in-One","stackTemp.yaml",cloudformation)
             configure(client,ec2,autoscaling,ssh_client,cloudformation)
+            monitoringCreate(s3,s3Res,lamda,cloudformation,autoscaling)
 
     elif (a == 1):
-        # Get controllers Ids
+        # Derlete
         delete_cloudformation_stack(ec2,client,"All-in-One",cloudformation)
+        monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs)
     else:
         print("Deleting All ...")
         amiId = amis[0]["ImageId"]
@@ -105,3 +138,4 @@ if __name__ == '__main__':
         delete_cloudformation_stack(ec2,client,"All-in-One",cloudformation)
         delete_key_pair(client)
         delete_ami(amiId,amiName,client)
+        monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs)

@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Autoscaling Lambda Function.
+
+
+
+Resources:
+
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: lambda-autoscaling-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: lambda-autoscaling-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                - 's3:*'
+                Resource:
+                - '*'
+              - Effect: Allow
+                Action:
+                - "ec2:DescribeInstances"
+                - "autoscaling:CompleteLifecycleAction"
+                Resource:
+                - '*'
+              - Effect: Allow
+                Action:
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+                Resource:
+                - 'arn:aws:logs:*:*:*'
+  AutoScalingLifecycleHookRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: autoscaling-hook-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - autoscaling.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: autoscaling-hook-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                - 'sns:Publish'
+                Resource:
+                - !Ref LambdaSNSTopic
+
+  AutoScalingLambdaFunction:
+    DependsOn:
+      - LambdaRole
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Role: !GetAtt LambdaRole.Arn # arn:aws:iam::225616068815:role/Kube-Config-Py-Role
+      FunctionName: kubeconfigpy
+      Code:
+        S3Bucket: kube-cluster-lambda-bucket
+        S3Key: lambda.zip
+      Runtime: python3.6
+      Timeout: 15
+
+  LambdaSNSTopic:
+    DependsOn: AutoScalingLambdaFunction
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "AutoScalingLambdaTopic"
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "AutoScalingLambdaFunction"
+              - "Arn"
+          Protocol: "lambda"
+
+Outputs:
+
+  LambdaSNSTopic:
+    Description: SNS topic target of AutoScaling activity
+    Value: !Ref LambdaSNSTopic
+
+  AutoScalingLifecycleHookRole:
+    Description: Role assumed by AutoScaling Hooks
+    Value: !GetAtt AutoScalingLifecycleHookRole.Arn
