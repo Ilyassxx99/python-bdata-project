@@ -75,8 +75,8 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             controllersPrivateIp.append(instance["PrivateIpAddress"])
             controllersId.append(instance["InstanceId"]) # Get controller Id
             print("Controller-{} ip: ".format(controllersCount) + instance["PublicIpAddress"])
-            os.environ["CONTROLLER_IP"]=controllersIp[0]
-            subprocess.call('echo "--------------------------------" && echo "Controller IP: $CONTROLLER_IP" && echo "--------------------------------"', shell = True)
+            #os.environ["CONTROLLER_IP"]=controllersIp[0]
+            #subprocess.call('echo "--------------------------------" && echo "Controller IP: $CONTROLLER_IP" && echo "--------------------------------"', shell = True)
             #subprocess.call("echo $CONTROLLER_IP > /root/.kube/MasterIp", shell=True)
             waiter = client.get_waiter('instance_status_ok') # Wait for controller to change status ok
             waiter.wait(
@@ -136,8 +136,8 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             stdo = ""
             workersIp.append(instance["PublicIpAddress"]) # Get worker Ip address
             workersId.append(instance["InstanceId"]) # Get worker Id
-            os.environ["WORKER_IP"]=workersIp[workersCount]
-            subprocess.call('echo "--------------------------------" && echo "Worker IP: $WORKER_IP" && echo "--------------------------------"', shell = True)
+            #os.environ["WORKER_IP"]=workersIp[workersCount]
+            #subprocess.call('echo "--------------------------------" && echo "Worker IP: $WORKER_IP" && echo "--------------------------------"', shell = True)
             print("Worker-{} ip: ".format(workersCount) + instance["PublicIpAddress"])
             waiter = client.get_waiter('instance_status_ok') # Wait for worker status Ok
             waiter.wait(
@@ -179,6 +179,7 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
     print("--------------------------------")
     print("Deploying the kubernetes objects ...")
     subprocess.call("kubectl apply -f /scripts/k8s",shell=True)
+    subprocess.call("kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml",shell=True)
     subprocess.call("kubectl label nodes worker-node-0 spark=yes",shell=True)
     print("--------------------------------")
     print("Deploying the kube-opex-analytics ...")
