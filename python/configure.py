@@ -32,7 +32,9 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             controllersIp.append(instance["PublicIpAddress"]) # Get controller Ip address
             controllersPrivateIp.append(instance["PrivateIpAddress"])
             controllersId.append(instance["InstanceId"]) # Get controller Id
+            print("--------------------------------")
             print("Controller-{} ip: ".format(controllersCount) + instance["PublicIpAddress"])
+            print("--------------------------------")
             waiter = client.get_waiter('instance_status_ok') # Wait for controller to change status ok
             waiter.wait(
                 InstanceIds=[
@@ -61,7 +63,6 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             stdin,stdout,stderr=ssh_client.exec_command(cmd)
             lines = stdout.readlines() # read output of command
             subprocess.call("./create-admin.sh",shell=True)
-            print("Controller-{} id: ".format(controllersCount) + lines[0])
             print("Kubernetes cluster initiated successfully !")
             print("-------------------------------------------")
             # Copying files to remote controller
@@ -75,14 +76,15 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             controllersCount = controllersCount + 1
             joincmd = lines[0][:-2]
             joincmd = "sudo "+ joincmd # The join command to enter in controllers to join cluster
-
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     for reservation in workers["Reservations"]:
         for instance in reservation["Instances"]:
             stdo = ""
             workersIp.append(instance["PublicIpAddress"]) # Get worker Ip address
             workersId.append(instance["InstanceId"]) # Get worker Id
-
+            print("--------------------------------")
             print("Worker-{} ip: ".format(workersCount) + instance["PublicIpAddress"])
+            print("--------------------------------")
             waiter = client.get_waiter('instance_status_ok') # Wait for worker status Ok
             waiter.wait(
                 InstanceIds=[
@@ -103,21 +105,21 @@ def configure(client,ec2,autoscaling,ssh_client,cloudformation):
             stdin,stdout,stderr=ssh_client.exec_command(joincmd) # Command to join cluster
             lines = stderr.readlines()
             ssh_client.close()
-            for line in lines:
-                stdo = stdo + line # Output of join command
-            print(stdo)
-            print("-------------------------------------------")
+            # for line in lines:
+            #     stdo = stdo + line # Output of join command
+            # print(stdo)
             workersCount = workersCount + 1
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     print("--------------------------------")
     print("Deploying the kubernetes objects ...")
     subprocess.call("kubectl apply -f /scripts/k8s",shell=True)
-    subprocess.call("kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml",shell=True)
     subprocess.call("kubectl label nodes worker-node-0 spark=yes",shell=True)
     print("--------------------------------")
     print("Deploying the kube-opex-analytics ...")
     subprocess.call('helm upgrade \
-                    --namespace default \
+                    --namespace kube-system \
                     --install kube-opex-analytics \
                     /scripts/helm/kube-opex-analytics/', shell=True)
     print("--------------------------------")
-    print("-----------------------------------------------------------Access Kube-Opex-Analytics on: $WORKER_IP:31082-----------------------------------------------------------")
+    print("Access Kube-Opex-Analytics on: "+workersIp[0]+":31082")
+    print("--------------------------------")
