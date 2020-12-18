@@ -20,26 +20,29 @@ if __name__ == '__main__':
     print("-------------------------")
     print(ACCESS_KEY)
     print(SECRET_KEY)
+    print(REGION)
     print("-------------------------")
-
-    session = boto3.session.Session()
-    region = session.region_name
-    accId = boto3.client('sts').get_caller_identity().get('Account')
-    print("my account id is: "+accId)
-    print("my region is: "+region)
-    topicArn = 'arn:aws:sns:'+region+':'+accId+':AutoScalingLambdaTopic'
-
-    print("-------------------------")
-    print(topicArn)
-    print("-------------------------")
-
     my_config = Config(
-        region_name = 'eu-west-3',
+        region_name = REGION,
         retries = {
             'max_attempts': 10,
             'mode': 'standard'
         }
     )
+
+    accId = boto3.client('sts',
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=my_config).get_caller_identity().get('Account')
+    print("my account id is: "+accId)
+    print("my region is: "+REGION)
+    topicArn = 'arn:aws:sns:'+REGION+':'+accId+':AutoScalingLambdaTopic'
+
+    print("-------------------------")
+    print(topicArn)
+    print("-------------------------")
+
+
     client = boto3.client("ec2",
     aws_access_key_id=ACCESS_KEY,
     aws_secret_access_key=SECRET_KEY,
