@@ -83,7 +83,7 @@ def monitoringCreate(s3,s3Res,lamda,cloudformation,autoscaling):
     )
 
 
-def monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs):
+def monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs,topicArn):
     # Delete All
     subsArn = []
     response = s3.delete_objects(
@@ -110,12 +110,6 @@ def monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs):
     response = iam.delete_role(
     RoleName='lambda-autoscaling-role'
     )
-    session = boto3.session.Session()
-    region = session.region_name
-    accId = boto3.client('sts').get_caller_identity().get('Account')
-    print("my account id is: "+accId)
-    print("my region is: "+region)
-    topicArn = 'arn:aws:sns:'+region+':'+accId+':AutoScalingLambdaTopic'
     subs = sns.list_subscriptions_by_topic(
     TopicArn=topicArn,
     )

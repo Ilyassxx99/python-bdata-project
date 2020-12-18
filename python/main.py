@@ -22,6 +22,17 @@ if __name__ == '__main__':
     print(SECRET_KEY)
     print("-------------------------")
 
+    session = boto3.session.Session()
+    region = session.region_name
+    accId = boto3.client('sts').get_caller_identity().get('Account')
+    print("my account id is: "+accId)
+    print("my region is: "+region)
+    topicArn = 'arn:aws:sns:'+region+':'+accId+':AutoScalingLambdaTopic'
+
+    print("-------------------------")
+    print(topicArn)
+    print("-------------------------")
+
     my_config = Config(
         region_name = 'eu-west-3',
         retries = {
@@ -128,9 +139,9 @@ if __name__ == '__main__':
             monitoringCreate(s3,s3Res,lamda,cloudformation,autoscaling)
 
     elif (a == 1):
-        # Derlete
+        # Delete
         delete_cloudformation_stack(ec2,client,"All-in-One",cloudformation)
-        monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs)
+        monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs,topicArn)
     else:
         print("Deleting All ...")
         amiId = amis[0]["ImageId"]
@@ -138,4 +149,4 @@ if __name__ == '__main__':
         delete_cloudformation_stack(ec2,client,"All-in-One",cloudformation)
         delete_key_pair(client)
         delete_ami(amiId,amiName,client)
-        monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs)
+        monitoringDelete(s3,ec2,client,cloudformation,iam,sns,logs,topicArn)
